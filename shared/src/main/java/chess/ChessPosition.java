@@ -34,6 +34,18 @@ public class ChessPosition {
     }
 
 
+    public boolean isOutOfBounds() {
+        return this.getRow() < 1 || this.getRow() > 8 || this.getColumn() < 1 || this.getColumn() > 8;
+    }
+
+    @Override
+    public String toString() {
+        return "pos{" +
+                "r=" + row +
+                ", c=" + column +
+                '}';
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
