@@ -7,8 +7,8 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessPosition {
-    int row = 0;
-    int column = 0;
+    private int row = 0;
+    private int column = 0;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -29,5 +29,16 @@ public class ChessPosition {
      */
     public int getColumn() {
         return this.column;
+    }
+
+
+    public boolean equals(ChessPosition obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        return row == obj.row && column == obj.column;
     }
 }
