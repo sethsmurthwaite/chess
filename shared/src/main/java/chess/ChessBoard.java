@@ -11,6 +11,8 @@ import java.util.Arrays;
 public class ChessBoard {
 
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
+    ChessPosition whiteKingPosition;
+    ChessPosition blackKingPosition;
 
     public ChessBoard() {
         
@@ -60,6 +62,13 @@ public class ChessBoard {
         for (int i = 0; i < 8; i++) {
             chessBoard[pawnRow][i] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
         }
+    }
+
+    public ChessPosition getKing(ChessGame.TeamColor color) {
+        return switch (color) {
+            case WHITE -> whiteKingPosition;
+            case BLACK -> blackKingPosition;
+        };
     }
 
     @Override
