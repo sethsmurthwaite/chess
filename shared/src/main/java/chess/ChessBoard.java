@@ -11,8 +11,6 @@ import java.util.Arrays;
 public class ChessBoard {
 
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
-    ChessPosition whiteKingPosition;
-    ChessPosition blackKingPosition;
 
     public ChessBoard() {
         
@@ -65,10 +63,24 @@ public class ChessBoard {
     }
 
     public ChessPosition getKing(ChessGame.TeamColor color) {
-        return switch (color) {
-            case WHITE -> whiteKingPosition;
-            case BLACK -> blackKingPosition;
-        };
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = getPiece(position);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING
+                        && piece.getTeamColor() == color) {
+                    return position;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "chessBoard=" + Arrays.toString(chessBoard) +
+                '}';
     }
 
     @Override

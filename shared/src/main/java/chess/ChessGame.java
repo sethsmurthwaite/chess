@@ -70,23 +70,35 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKing(teamColor);
-
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Current King Color: ").append(teamColor).append('\n');
+//        stringBuilder.append("King Position: ").append(kingPosition).append('\n');
         for (int row = 1; row <= 8; row++) {
             for (int column = 1; column <= 8; column++) {
+
 
                 ChessPosition position = new ChessPosition(row, column);
                 ChessPiece piece = board.getPiece(position);
 
+
+//                if (piece != null) {
+//                    stringBuilder.append("Piece: ").append(piece.getTeamColor()).append(' ').append(piece.getPieceType()).append('\n');
+//                    stringBuilder.append("Position: ").append(position.toString()).append("\n");
+//                }
+
+
                 if (piece == null || piece.getTeamColor() == teamColor) continue;
 
                 for (ChessMove possibleMove : piece.pieceMoves(board, position)) {
+//                    stringBuilder.append(possibleMove);
                     if (possibleMove.getEndPosition().equals(kingPosition)) {
                         return true;
                     }
                 }
+//                stringBuilder.append("\n");
             }
         }
-
+        System.out.println(stringBuilder.toString());
         return false;
     }
 
