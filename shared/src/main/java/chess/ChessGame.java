@@ -59,7 +59,23 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition endPos = move.getEndPosition();
+        ChessPiece movingPiece = board.getPiece(move.getStartPosition());
+        ChessPiece occupyingPiece = board.getPiece(endPos);
+
+        if (move.getStartPosition().isOutOfBounds() || move.getEndPosition().isOutOfBounds()) {
+            throw new InvalidMoveException();
+        }
+
+        if (occupyingPiece != null && movingPiece.getTeamColor() == occupyingPiece.getTeamColor()) {
+            throw new InvalidMoveException();
+        }
+
+        if (')
+
+        if (occupyingPiece == null) {
+            board.addPiece(endPos, movingPiece);
+        }
     }
 
     /**
@@ -75,18 +91,12 @@ public class ChessGame {
 //        stringBuilder.append("King Position: ").append(kingPosition).append('\n');
         for (int row = 1; row <= 8; row++) {
             for (int column = 1; column <= 8; column++) {
-
-
                 ChessPosition position = new ChessPosition(row, column);
                 ChessPiece piece = board.getPiece(position);
-
-
 //                if (piece != null) {
 //                    stringBuilder.append("Piece: ").append(piece.getTeamColor()).append(' ').append(piece.getPieceType()).append('\n');
 //                    stringBuilder.append("Position: ").append(position.toString()).append("\n");
 //                }
-
-
                 if (piece == null || piece.getTeamColor() == teamColor) continue;
 
                 for (ChessMove possibleMove : piece.pieceMoves(board, position)) {
@@ -120,7 +130,28 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        TeamColor enemyColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+        for (int row = 1; row <= 8; row++) {
+            for (int column = 1; column <= 8; column++) {
+                ChessPosition position = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(position);
+                if (piece == null || piece.getTeamColor() != teamColor) continue;
+                for (ChessMove move : piece.pieceMoves(board, position)) {
+                    ChessPosition endPos = move.getEndPosition();
+                    try {
+                        makeMove(move);
+                    } catch (InvalidMoveException badMove) {
+                        System.out.println("You're making a bad move " + badMove);
+                    }
+                    if (!isInCheck(teamColor)) {
+                        return false;
+                    }
+                }
+
+
+            }
+        }
+        return true;
     }
 
     /**
