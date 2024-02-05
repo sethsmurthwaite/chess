@@ -140,28 +140,27 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        TeamColor enemyColor = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+        ChessPosition kingPosition = board.getKing(teamColor);
         for (int row = 1; row <= 8; row++) {
             for (int column = 1; column <= 8; column++) {
-                ChessPosition position = new ChessPosition(row, column);
-                ChessPiece piece = board.getPiece(position);
-                if (piece == null || piece.getTeamColor() != teamColor) continue;
-                for (ChessMove move : piece.pieceMoves(board, position)) {
-                    ChessPosition endPos = move.getEndPosition();
-                    try {
-                        makeMove(move);
-                    } catch (InvalidMoveException badMove) {
-                        System.out.println("You're making a bad move " + badMove);
-                    }
-                    if (!isInCheck(teamColor)) {
+                ChessPosition targetPosition = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(new ChessPosition(row, column));
+                if (piece == null) continue;
+                if (piece.getTeamColor() != getTeamTurn()) continue;
+                Collection<ChessMove> moves = piece.pieceMoves(board, targetPosition);
+                if (!moves.isEmpty()) {
+                    for (ChessMove move : moves) {
+                        try {
+                            makeMove(move);
+                        } catch (InvalidMoveException e) {
+                            continue;
+                        }
                         return false;
                     }
                 }
-
-
             }
         }
-        return true;
+        return teamColor == getTeamTurn();
     }
 
     /**
