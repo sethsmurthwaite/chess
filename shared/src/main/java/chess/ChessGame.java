@@ -33,6 +33,12 @@ public class ChessGame {
         currentTeamTurn = team;
     }
 
+    private void advanceTurn() {
+        if (getTeamTurn() == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        } else { setTeamTurn(TeamColor.WHITE); }
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -60,22 +66,29 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition endPos = move.getEndPosition();
-        ChessPiece movingPiece = board.getPiece(move.getStartPosition());
+        ChessPosition startPos = move.getStartPosition();
+        ChessPiece movingPiece = board.getPiece(startPos);
         ChessPiece occupyingPiece = board.getPiece(endPos);
 
         if (move.getStartPosition().isOutOfBounds() || move.getEndPosition().isOutOfBounds()) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("A move was attempted that was out of bounds.");
+        }
+        if (movingPiece.getTeamColor() != this.getTeamTurn()) {
+            throw new InvalidMoveException("Out of turn.");
+        }
+        if (!movingPiece.pieceMoves(board, startPos).contains(move)) {
+            throw new InvalidMoveException("A move was attempted that was not a legal move.");
         }
 
-        if (occupyingPiece != null && movingPiece.getTeamColor() == occupyingPiece.getTeamColor()) {
-            throw new InvalidMoveException();
+        board.addPiece(endPos, movingPiece);
+        board.addPiece(startPos, null);
+        if (isInCheck(getTeamTurn())) {
+            board.addPiece(startPos, movingPiece);
+            board.addPiece(endPos, occupyingPiece);
+            throw new InvalidMoveException("King is in check");
         }
+        advanceTurn();
 
-        if (')
-
-        if (occupyingPiece == null) {
-            board.addPiece(endPos, movingPiece);
-        }
     }
 
     /**
