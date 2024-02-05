@@ -56,14 +56,14 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        HashSet<ChessMove> validMoves = new HashSet<ChessMove>();
+        HashSet<ChessMove> validMoves = new HashSet<>();
         ChessPiece movingPiece = board.getPiece(startPosition);
         if (movingPiece == null) return null;
 
         Collection<ChessMove> moves = movingPiece.pieceMoves(board, startPosition);
         for (ChessMove move : moves) {
             boolean invalid = false;
-            ChessPosition endPos = move.getEndPosition();
+//            ChessPosition endPos = move.getEndPosition();
             ChessBoard boardCopy = new ChessBoard(board);
             try {
                 makeMove(move);
@@ -161,7 +161,6 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessPosition kingPosition = board.getKing(teamColor);
         for (int row = 1; row <= 8; row++) {
             for (int column = 1; column <= 8; column++) {
                 ChessPosition targetPosition = new ChessPosition(row, column);
