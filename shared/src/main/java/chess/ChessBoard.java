@@ -13,7 +13,22 @@ public class ChessBoard {
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
 
     public ChessBoard() {
-        
+
+    }
+
+    public ChessBoard(ChessBoard duplicate) {
+        this.chessBoard = new ChessPiece[8][8];
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece originalPiece = duplicate.chessBoard[row][col];
+                if (originalPiece != null) {
+                    ChessPiece copiedPiece = new ChessPiece(originalPiece.getTeamColor(), originalPiece.getPieceType());
+                    this.chessBoard[row][col] = copiedPiece;
+                } else {
+                    this.chessBoard[row][col] = null;
+                }
+            }
+        }
     }
 
     /**
