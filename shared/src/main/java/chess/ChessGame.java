@@ -59,15 +59,18 @@ public class ChessGame {
         HashSet<ChessMove> validMoves = new HashSet<>();
         ChessPiece movingPiece = board.getPiece(startPosition);
         if (movingPiece == null) return null;
+        ChessPiece.PieceType movingPieceType = movingPiece.getPieceType();
+        TeamColor movingPieceColor = movingPiece.getTeamColor();
+        setTeamTurn(movingPieceColor);
 
         Collection<ChessMove> moves = movingPiece.pieceMoves(board, startPosition);
         for (ChessMove move : moves) {
             boolean invalid = false;
-//            ChessPosition endPos = move.getEndPosition();
+            ChessPosition endPos = move.getEndPosition();
             ChessBoard boardCopy = new ChessBoard(board);
             try {
-                makeMove(move);
                 setTeamTurn(movingPiece.getTeamColor());
+                makeMove(move);
             } catch (InvalidMoveException e) {
                 invalid = true;
             }
