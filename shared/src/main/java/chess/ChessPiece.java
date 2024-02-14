@@ -21,18 +21,6 @@ public class ChessPiece {
     }
 
     /**
-     * The various different chess piece options
-     */
-    public enum PieceType {
-        KING,
-        QUEEN,
-        BISHOP,
-        KNIGHT,
-        ROOK,
-        PAWN
-    }
-
-    /**
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
@@ -45,26 +33,6 @@ public class ChessPiece {
     public PieceType getPieceType() {
         return this.type;
     }
-
-//    private char getPieceChar() {
-//        char pieceChar = 0;
-//        switch (type) {
-//            case KING -> pieceChar = 'K';
-//            case QUEEN -> pieceChar = 'Q';
-//            case BISHOP -> pieceChar = 'B';
-//            case KNIGHT -> pieceChar = 'N';
-//            case ROOK -> pieceChar = 'R';
-//            case PAWN -> pieceChar = 'P';
-//        }
-//        return checkCase(pieceChar);
-//    }
-//
-//    private char checkCase(char pieceChar) {
-//        if (pieceColor == ChessGame.TeamColor.BLACK) {
-//            return toLowerCase(pieceChar);
-//        }
-//        return pieceChar;
-//    }
 
     /**
      * Calculates all the positions a chess piece can move to
@@ -183,7 +151,8 @@ public class ChessPiece {
                 possibleMoves.add(new ChessMove(position, targetPosition));
             } else if (occupyingPiece.pieceColor != pieceColor) {
                 possibleMoves.add(new ChessMove(position, targetPosition));
-            };
+            }
+            ;
         }
         return possibleMoves;
     }
@@ -224,20 +193,19 @@ public class ChessPiece {
 
         if (pieceColor == ChessGame.TeamColor.WHITE) {
             if (row == 2) {
-                rowDirections = new int[] {1, 1, 1, 2};
-                colDirections = new int[] {-1, 0, 1, 0};
+                rowDirections = new int[]{1, 1, 1, 2};
+                colDirections = new int[]{-1, 0, 1, 0};
             } else {
-                rowDirections = new int[] {1, 1, 1};
-                colDirections = new int[] {-1, 0, 1};
+                rowDirections = new int[]{1, 1, 1};
+                colDirections = new int[]{-1, 0, 1};
             }
-        }
-        else {
+        } else {
             if (row == 7) {
-                rowDirections = new int[] {-1, -1, -1, -2};
-                colDirections = new int[] {-1, 0, 1, 0};
+                rowDirections = new int[]{-1, -1, -1, -2};
+                colDirections = new int[]{-1, 0, 1, 0};
             } else {
-                rowDirections = new int[] {-1, -1, -1};
-                colDirections = new int[] {-1, 0, 1};
+                rowDirections = new int[]{-1, -1, -1};
+                colDirections = new int[]{-1, 0, 1};
             }
         }
 
@@ -300,7 +268,6 @@ public class ChessPiece {
         return possibleMoves;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -312,5 +279,17 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(pieceColor, type);
+    }
+
+    /**
+     * The various different chess piece options
+     */
+    public enum PieceType {
+        KING,
+        QUEEN,
+        BISHOP,
+        KNIGHT,
+        ROOK,
+        PAWN
     }
 }
