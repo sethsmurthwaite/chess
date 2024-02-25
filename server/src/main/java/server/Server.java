@@ -41,7 +41,7 @@ public class Server {
         Spark.exception(DataAccessException.class, this::exceptionHandler);
     }
 
-    private Object registerUserEndpoint(Request req, Response res) throws DataAccessException {
+    private Object registerUserEndpoint(Request req, Response res) {
         UserData userData = gson.fromJson(req.body(), UserData.class);
         try {
             AuthData authData = userService.register(userData);
@@ -52,7 +52,7 @@ public class Server {
         }
     }
 
-    private Object loginEndpoint(Request req, Response res) throws DataAccessException {
+    private Object loginEndpoint(Request req, Response res) {
         UserData user = gson.fromJson(req.body(), UserData.class);
         try {
             AuthData authData = userService.login(user);
@@ -67,7 +67,7 @@ public class Server {
         }
     }
 
-    private Object logoutEndpoint(Request req, Response res) throws DataAccessException {
+    private Object logoutEndpoint(Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
             if (authToken == null) throw new DataAccessException("Missing Auth Token", 400);
@@ -79,7 +79,7 @@ public class Server {
         }
     }
 
-    private Object listGamesEndpoint(Request req, Response res) throws DataAccessException {
+    private Object listGamesEndpoint(Request req, Response res) {
         String authToken = req.headers("Authorization");
         try {
             if (authToken == null) throw new DataAccessException("Missing Auth Token", 400);
@@ -92,7 +92,7 @@ public class Server {
         }
     }
 
-    private Object createGameEndpoint(Request req, Response res) throws DataAccessException {
+    private Object createGameEndpoint(Request req, Response res) {
         String authToken = req.headers("Authorization");
         GameName gameName = gson.fromJson(req.body(), GameName.class);
         try {
@@ -108,7 +108,7 @@ public class Server {
         }
     }
 
-    private Object joinGameEndpoint(Request req, Response res) throws DataAccessException {
+    private Object joinGameEndpoint(Request req, Response res) {
         JoinGameRequest request = gson.fromJson(req.body(), JoinGameRequest.class);
         String authToken = req.headers("Authorization");
 
