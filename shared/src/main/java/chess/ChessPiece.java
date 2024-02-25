@@ -70,7 +70,7 @@ public class ChessPiece {
         int row = position.getRow();
         int col = position.getColumn();
 
-        queen(board, position, row, col, possibleMoves);
+        rook(board, position, row, col, possibleMoves);
 
         return possibleMoves;
     }
@@ -240,14 +240,6 @@ public class ChessPiece {
         }
     }
     private void rook(ChessBoard board, ChessPosition position, int row, int col, HashSet<ChessMove> possibleMoves) {
-        for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
-            for (int colOffset = -1; colOffset < 2; colOffset++) {
-                doIt(board, position, row, col, possibleMoves, rowOffset, colOffset);
-            }
-        }
-    }
-
-    private void queen(ChessBoard board, ChessPosition position, int row, int col, HashSet<ChessMove> possibleMoves) {
         for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
             for (int colOffset = -1; colOffset < 2; colOffset++) {
                 doIt(board, position, row, col, possibleMoves, rowOffset, colOffset);
