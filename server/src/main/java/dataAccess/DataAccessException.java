@@ -7,6 +7,10 @@ public class DataAccessException extends Exception{
     int code;
 
     public DataAccessException(String message) {
+        this(message, 500);
+    }
+
+    public DataAccessException(String message, int code) {
         super(message);
     }
 }
