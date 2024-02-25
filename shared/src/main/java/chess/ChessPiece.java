@@ -12,8 +12,8 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor pieceColor;
-    private PieceType type;
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
@@ -156,7 +156,7 @@ public class ChessPiece {
             } else if (occupyingPiece.pieceColor != pieceColor) {
                 possibleMoves.add(new ChessMove(position, targetPosition));
             }
-            ;
+
         }
         return possibleMoves;
     }
