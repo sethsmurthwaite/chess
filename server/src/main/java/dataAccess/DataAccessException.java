@@ -12,5 +12,10 @@ public class DataAccessException extends Exception{
 
     public DataAccessException(String message, int code) {
         super(message);
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
     }
 }
