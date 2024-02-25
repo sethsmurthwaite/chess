@@ -1,16 +1,13 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import service.*;
 import model.*;
 import spark.*;
-
 import java.util.HashSet;
-import java.util.Optional;
 
 public class Server {
 
