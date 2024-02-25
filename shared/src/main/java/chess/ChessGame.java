@@ -37,15 +37,9 @@ public class ChessGame {
     private void advanceTurn() {
         if (getTeamTurn() == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);
-        } else { setTeamTurn(TeamColor.WHITE); }
-    }
-
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
-    public enum TeamColor {
-        WHITE,
-        BLACK
+        } else {
+            setTeamTurn(TeamColor.WHITE);
+        }
     }
 
     /**
@@ -187,6 +181,15 @@ public class ChessGame {
     }
 
     /**
+     * Gets the current chessboard
+     *
+     * @return the chessboard
+     */
+    public ChessBoard getBoard() {
+        return board;
+    }
+
+    /**
      * Sets this game's chessboard with a given board
      *
      * @param board the new board to use
@@ -196,11 +199,10 @@ public class ChessGame {
     }
 
     /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
+     * Enum identifying the 2 possible teams in a chess game
      */
-    public ChessBoard getBoard() {
-        return board;
+    public enum TeamColor {
+        WHITE,
+        BLACK
     }
 }
