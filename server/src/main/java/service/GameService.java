@@ -21,7 +21,7 @@ public class GameService {
     }
 
     public HashSet<GameData> listGames(String authToken) throws DataAccessException {
-        if (authDAO.readAuth(authToken) == null) throw new DataAccessException("Invalid Auth Token", 401);
+        authDAO.readAuth(authToken);
         HashSet<GameData> games = gameDAO.listGames();
         return games;
     }
@@ -29,7 +29,7 @@ public class GameService {
         this.gameDAO.clearGames();
     }
     public int createGame(GameName gameName, String authToken) throws DataAccessException {
-        if (null == authDAO.readAuth(authToken)) throw new DataAccessException("Invalid Auth Token", 401);
+        authDAO.readAuth(authToken);
         int gameID = gameDAO.createGame(gameName.gameName());
         return gameID;
     }
