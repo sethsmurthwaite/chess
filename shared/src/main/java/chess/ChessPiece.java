@@ -47,7 +47,7 @@ public class ChessPiece {
             case QUEEN -> queenMoves(board, myPosition);
             case BISHOP -> bishopMoves(board, myPosition);
             case KNIGHT -> knightMoves(board, myPosition);
-            case ROOK -> rookMoves(board, myPosition);
+            case ROOK -> queenMoves(board, myPosition);
             case PAWN -> pawnMoves(board, myPosition);
         };
     }
@@ -69,9 +69,7 @@ public class ChessPiece {
         HashSet<ChessMove> possibleMoves = new HashSet<>();
         int row = position.getRow();
         int col = position.getColumn();
-
         rook(board, position, row, col, possibleMoves);
-
         return possibleMoves;
     }
 
@@ -110,16 +108,6 @@ public class ChessPiece {
             }
 
         }
-        return possibleMoves;
-    }
-
-    private HashSet<ChessMove> rookMoves(ChessBoard board, ChessPosition position) {
-        HashSet<ChessMove> possibleMoves = new HashSet<>();
-        int row = position.getRow();
-        int col = position.getColumn();
-
-        rook(board, position, row, col, possibleMoves);
-
         return possibleMoves;
     }
 
