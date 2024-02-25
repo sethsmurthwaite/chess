@@ -58,25 +58,11 @@ public class ChessPiece {
         int col = position.getColumn();
         for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
             for (int coloOffset = -1; coloOffset < 2; coloOffset++) {
-                extracted(board, position, row, rowOffset, col, coloOffset, possibleMoves);
+                king(board, position, row, rowOffset, col, coloOffset, possibleMoves);
             }
         }
 
         return possibleMoves;
-    }
-
-    private void extracted(ChessBoard board, ChessPosition position, int row, int rowOffset, int col, int coloOffset, HashSet<ChessMove> possibleMoves) {
-        ChessPosition targetPosition = new ChessPosition(
-                row + rowOffset,
-                col + coloOffset);
-        if (targetPosition.isOutOfBounds()) return;
-        ChessPiece occupyingPiece = board.getPiece(targetPosition);
-        if (occupyingPiece == null) {
-            possibleMoves.add(new ChessMove(position, targetPosition));
-        }
-        if (occupyingPiece != null && occupyingPiece.pieceColor != pieceColor) {
-            possibleMoves.add(new ChessMove(position, targetPosition));
-        }
     }
 
     private HashSet<ChessMove> queenMoves(ChessBoard board, ChessPosition position) {
@@ -84,23 +70,7 @@ public class ChessPiece {
         int row = position.getRow();
         int col = position.getColumn();
 
-        for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
-            for (int colOffset = -1; colOffset < 2; colOffset++) {
-                for (int distance = 1; distance <= 8; distance++) {
-                    ChessPosition targetPosition = new ChessPosition(
-                            row + rowOffset * distance,
-                            col + colOffset * distance);
-                    if (targetPosition.isOutOfBounds()) continue;
-                    ChessPiece occupyingPiece = board.getPiece(targetPosition);
-                    if (occupyingPiece == null) {
-                        possibleMoves.add(new ChessMove(position, targetPosition));
-                    } else if (occupyingPiece.pieceColor != pieceColor) {
-                        possibleMoves.add(new ChessMove(position, targetPosition));
-                        break;
-                    } else break;
-                }
-            }
-        }
+        queen(board, position, row, col, possibleMoves);
 
         return possibleMoves;
     }
@@ -109,25 +79,7 @@ public class ChessPiece {
         HashSet<ChessMove> possibleMoves = new HashSet<>();
         int row = position.getRow();
         int col = position.getColumn();
-
-        for (int rowOffset = -1; rowOffset < 2; rowOffset += 2) {
-            for (int colOffset = -1; colOffset < 2; colOffset += 2) {
-                for (int distance = 1; distance <= 8; distance++) {
-                    ChessPosition targetPosition = new ChessPosition(
-                            row + rowOffset * distance,
-                            col + colOffset * distance);
-                    if (targetPosition.isOutOfBounds()) continue;
-                    ChessPiece occupyingPiece = board.getPiece(targetPosition);
-                    if (occupyingPiece == null) {
-                        possibleMoves.add(new ChessMove(position, targetPosition));
-                    } else if (occupyingPiece.pieceColor != pieceColor) {
-                        possibleMoves.add(new ChessMove(position, targetPosition));
-                        break;
-                    } else break;
-                }
-            }
-        }
-
+        bishop(board, position, row, col, possibleMoves);
         return possibleMoves;
     }
 
@@ -166,24 +118,7 @@ public class ChessPiece {
         int row = position.getRow();
         int col = position.getColumn();
 
-        for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
-            for (int colOffset = -1; colOffset < 2; colOffset++) {
-                for (int distance = 1; distance <= 8; distance++) {
-                    if (rowOffset != 0 && colOffset != 0) continue;
-                    ChessPosition targetPosition = new ChessPosition(
-                            row + rowOffset * distance,
-                            col + colOffset * distance);
-                    if (targetPosition.isOutOfBounds()) continue;
-                    ChessPiece occupyingPiece = board.getPiece(targetPosition);
-                    if (occupyingPiece == null) {
-                        possibleMoves.add(new ChessMove(position, targetPosition));
-                    } else if (occupyingPiece.pieceColor != pieceColor) {
-                        possibleMoves.add(new ChessMove(position, targetPosition));
-                        break;
-                    } else break;
-                }
-            }
-        }
+        rook(board, position, row, col, possibleMoves);
 
         return possibleMoves;
     }
@@ -295,5 +230,61 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN
+    }
+
+    private void bishop(ChessBoard board, ChessPosition position, int row, int col, HashSet<ChessMove> possibleMoves) {
+        for (int rowOffset = -1; rowOffset < 2; rowOffset += 2) {
+            for (int colOffset = -1; colOffset < 2; colOffset += 2) {
+                doIt(board, position, row, col, possibleMoves, rowOffset, colOffset);
+            }
+        }
+    }
+    private void rook(ChessBoard board, ChessPosition position, int row, int col, HashSet<ChessMove> possibleMoves) {
+        for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
+            for (int colOffset = -1; colOffset < 2; colOffset++) {
+                doIt(board, position, row, col, possibleMoves, rowOffset, colOffset);
+            }
+        }
+    }
+
+    private void queen(ChessBoard board, ChessPosition position, int row, int col, HashSet<ChessMove> possibleMoves) {
+        for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
+            for (int colOffset = -1; colOffset < 2; colOffset++) {
+                doIt(board, position, row, col, possibleMoves, rowOffset, colOffset);
+            }
+        }
+    }
+
+    private void king(ChessBoard board, ChessPosition position, int row, int rowOffset, int col, int coloOffset, HashSet<ChessMove> possibleMoves) {
+        ChessPosition targetPosition = new ChessPosition(
+                row + rowOffset,
+                col + coloOffset);
+        if (targetPosition.isOutOfBounds()) return;
+        ChessPiece occupyingPiece = board.getPiece(targetPosition);
+        if (occupyingPiece == null) {
+            possibleMoves.add(new ChessMove(position, targetPosition));
+        }
+        if (occupyingPiece != null && occupyingPiece.pieceColor != pieceColor) {
+            possibleMoves.add(new ChessMove(position, targetPosition));
+        }
+    }
+
+    private void doIt(ChessBoard board, ChessPosition position, int row, int col, HashSet<ChessMove> possibleMoves, int rowOffset, int colOffset) {
+        for (int distance = 1; distance <= 8; distance++) {
+            if (board.getPiece(position).getPieceType() == PieceType.ROOK) {
+                if (rowOffset != 0 && colOffset != 0) continue;
+            }
+            ChessPosition targetPosition = new ChessPosition(
+                    row + rowOffset * distance,
+                    col + colOffset * distance);
+            if (targetPosition.isOutOfBounds()) continue;
+            ChessPiece occupyingPiece = board.getPiece(targetPosition);
+            if (occupyingPiece == null) {
+                possibleMoves.add(new ChessMove(position, targetPosition));
+            } else if (occupyingPiece.pieceColor != pieceColor) {
+                possibleMoves.add(new ChessMove(position, targetPosition));
+                break;
+            } else break;
+        }
     }
 }
