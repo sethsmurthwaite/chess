@@ -3,7 +3,6 @@ import chess.ChessGame;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;
-import model.GameData;
 import model.GameName;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -63,14 +62,14 @@ public class GameServiceTests {
     @Order(5)
     @DisplayName("Positive Join Game")
     public void successJoin() throws DataAccessException {
-        int ID = gameService.createGame(new GameName("newGame"), auth.authToken());
+        gameService.createGame(new GameName("newGame"), auth.authToken());
         assertDoesNotThrow(() -> gameService.joinGame("Seth", ChessGame.TeamColor.WHITE, 1));
     }
 
     @Test
     @Order(6)
     @DisplayName("Negative Join Game")
-    public void failJoin() throws DataAccessException {
+    public void failJoin() {
         assertThrows(DataAccessException.class, () -> gameService.joinGame("Seth", ChessGame.TeamColor.WHITE, 1));
     }
 }

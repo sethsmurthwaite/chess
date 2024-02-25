@@ -29,7 +29,7 @@ public class UserServiceTests {
     @DisplayName("Negative User Register")
     public void failRegister() throws DataAccessException {
         UserData user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
-        AuthData authData = userService.register(user);
+        userService.register(user);
         Assertions.assertThrows(DataAccessException.class, () -> userService.register(user));
     }
 
@@ -46,7 +46,7 @@ public class UserServiceTests {
     @Test
     @Order(4)
     @DisplayName("Negative User Login")
-    public void failLogin() throws DataAccessException {
+    public void failLogin() {
         UserData user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
         Assertions.assertThrows(DataAccessException.class, () -> userService.login(user));
     }
@@ -63,8 +63,8 @@ public class UserServiceTests {
     @Test
     @Order(6)
     @DisplayName("Negative User Logout")
-    public void failLogout() throws DataAccessException {
-        UserData user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
+    public void failLogout() {
+        new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
         Assertions.assertThrows(DataAccessException.class, () -> userService.logout("badauthToken"));
     }
 
@@ -73,7 +73,7 @@ public class UserServiceTests {
     @DisplayName("Positive Clear Users")
     public void successClear() throws DataAccessException {
         UserData user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
-        AuthData a = userService.register(user);
+        userService.register(user);
         userService.clearUsers();
         Assertions.assertThrows(DataAccessException.class, () -> userService.login(user));
     }
@@ -83,7 +83,7 @@ public class UserServiceTests {
     @DisplayName("Negative Clear Users")
     public void failClear() throws DataAccessException {
         UserData user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
-        AuthData a = userService.register(user);
+        userService.register(user);
         userService.clearUsers();
         Assertions.assertDoesNotThrow(() -> userService.register(user));
     }

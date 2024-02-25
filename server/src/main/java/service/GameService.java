@@ -1,13 +1,11 @@
 package service;
 
 import chess.ChessGame;
-import com.google.gson.JsonObject;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import model.GameData;
 import model.GameName;
-import model.UserData;
 
 import java.util.*;
 
@@ -22,16 +20,14 @@ public class GameService {
 
     public HashSet<GameData> listGames(String authToken) throws DataAccessException {
         authDAO.readAuth(authToken);
-        HashSet<GameData> games = gameDAO.listGames();
-        return games;
+        return gameDAO.listGames();
     }
     public void clearGames() throws DataAccessException {
         this.gameDAO.clearGames();
     }
     public int createGame(GameName gameName, String authToken) throws DataAccessException {
         authDAO.readAuth(authToken);
-        int gameID = gameDAO.createGame(gameName.gameName());
-        return gameID;
+        return gameDAO.createGame(gameName.gameName());
     }
 
     public void joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
