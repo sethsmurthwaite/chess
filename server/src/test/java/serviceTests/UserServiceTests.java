@@ -38,7 +38,7 @@ public class UserServiceTests {
     @DisplayName("Positive User Login")
     public void successLogin() throws DataAccessException {
         UserData user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
-        AuthData a = userService.register(user);
+        userService.register(user);
         AuthData authData = userService.login(user);
         assertEquals(authData.username(), user.username());
     }
