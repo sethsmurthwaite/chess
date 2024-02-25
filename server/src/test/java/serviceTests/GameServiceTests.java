@@ -1,45 +1,76 @@
 package serviceTests;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import org.junit.jupiter.api.*;
-
 import chess.ChessGame;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
+import model.AuthData;
 import model.GameData;
 import model.GameName;
+import model.UserData;
+import org.junit.jupiter.api.*;
 import service.GameService;
+import service.UserService;
 
 import java.util.HashSet;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class GameServiceTests {
+import static org.junit.jupiter.api.Assertions.*;
 
-    private GameService gameService;
+public class GameServiceTests {
+    GameService gameService;
+    UserService userService;
+    UserData user;
+    AuthData auth;
 
     @BeforeEach
-    void setUp() {
+    public void setup() throws DataAccessException {
         gameService = new GameService(new AuthDAO());
+        userService = new UserService(new AuthDAO());
+        user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
+        auth = userService.register(user);
     }
 
     @Test
     @Order(1)
-    void testListGames_Positive() throws DataAccessException {
-        HashSet<GameData> games = gameService.listGames("validToken");
-        assertNotNull(games);
-        assertEquals(0, games.size());
+    @DisplayName("Positive List Games")
+    public void successList() throws DataAccessException {
+        assertEquals(gameService.listGames(auth.authToken()), new HashSet<>());
     }
 
     @Test
     @Order(2)
-    void testListGames_Negative_InvalidToken() {
-        assertThrows(DataAccessException.class, () -> {
-            gameService.listGames("invalidToken");
-        });
+    @DisplayName("Negative List Games")
+    public void failList() {
+        assertThrows(DataAccessException.class, () -> gameService.listGames("bad token"));
     }
 
-    // Similarly, write test cases for clearGames(), createGame(), and joinGame() methods.
+    @Test
+    @Order(3)
+    @DisplayName("Positive Create Game")
+    public void successCreate() throws DataAccessException {
+        int ID = gameService.createGame(new GameName("newGame"), auth.authToken());
+        assertEquals(1, ID);
+        assertEquals(gameService.listGames(auth.authToken()).size(), 1);
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Negative Create Game")
+    public void failCreate() throws DataAccessException {
+        assertThrows(DataAccessException.class, () -> gameService.createGame(new GameName("name"), "badToken"));
+        assertEquals(gameService.listGames(auth.authToken()).size(), 0);
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Positive Join Game")
+    public void successJoin() throws DataAccessException {
+        int ID = gameService.createGame(new GameName("newGame"), auth.authToken());
+        assertDoesNotThrow(() -> gameService.joinGame("Seth", ChessGame.TeamColor.WHITE, 1));
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Negative Join Game")
+    public void failJoin() throws DataAccessException {
+        assertThrows(DataAccessException.class, () -> gameService.joinGame("Seth", ChessGame.TeamColor.WHITE, 1));
+    }
 }
