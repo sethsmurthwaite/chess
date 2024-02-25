@@ -51,11 +51,7 @@ public class Server {
             res.status(200);
             return gson.toJson(authData);
         } catch (DataAccessException e) {
-            res.status(e.getCode());
-            res.body(e.toString());
-            JsonObject error = new JsonObject();
-            error.addProperty("message", "Error: " + e.getMessage());
-            return error;
+            return handleError(res, e);
         }
     }
 
@@ -82,11 +78,7 @@ public class Server {
             res.status(200);
             return "";
         } catch (DataAccessException e) {
-            res.status(e.getCode());
-            res.body(e.toString());
-            JsonObject error = new JsonObject();
-            error.addProperty("message", "Error: " + e.getMessage());
-            return error;
+            return handleError(res, e);
         }
     }
 
@@ -99,13 +91,8 @@ public class Server {
             res.status(200);
             return gson.toJson(gameListRecord);
         } catch (DataAccessException e) {
-            res.status(e.getCode());
-            res.body(e.toString());
-            JsonObject error = new JsonObject();
-            error.addProperty("message", "Error: " + e.getMessage());
-            return error;
+            return handleError(res, e);
         }
-
     }
 
     private Object createGameEndpoint(Request req, Response res) throws DataAccessException {
@@ -120,13 +107,8 @@ public class Server {
             json.addProperty("gameID", gameID);
             return json;
         } catch (DataAccessException e) {
-            res.status(e.getCode());
-            res.body(e.toString());
-            JsonObject error = new JsonObject();
-            error.addProperty("message", "Error: " + e.getMessage());
-            return error;
+            return handleError(res, e);
         }
-
     }
 
     private Object joinGameEndpoint(Request req, Response res) throws DataAccessException {
@@ -139,7 +121,6 @@ public class Server {
             gameService.joinGame(userData.username(), request.playerColor(), request.gameID());
             res.status(200);
         } catch (DataAccessException e) {
-
             res.status(e.getCode());
             if (res.status() == 200) {
                 return new JsonObject();
@@ -159,23 +140,19 @@ public class Server {
         userService.clearUsers();
         authDAO.clearAuth();
         res.status(200);
-//        try {
-//            gameService.clearGames();
-//            userService.clearUsers();
-//            authDAO.clearAuth();
-//            res.status(200);
-//        } catch (Exception e) {
-//            res.status(500);
-//            JsonObject errorResponse = new JsonObject();
-//            errorResponse.addProperty("message", "Error: " + e.getMessage());
-//            res.body(this.gson.toJson(errorResponse));
-//            return errorResponse;
-//        }
         return new JsonObject();
     }
 
     private void exceptionHandler(DataAccessException ex, Request req, Response res) {
         res.status(500);
         System.out.println("Exception handler");
+    }
+
+    private static JsonObject handleError(Response res, DataAccessException e) {
+        res.status(e.getCode());
+        res.body(e.toString());
+        JsonObject error = new JsonObject();
+        error.addProperty("message", "Error: " + e.getMessage());
+        return error;
     }
 }

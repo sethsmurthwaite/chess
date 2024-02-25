@@ -57,22 +57,26 @@ public class ChessPiece {
         int row = position.getRow();
         int col = position.getColumn();
         for (int rowOffset = -1; rowOffset < 2; rowOffset++) {
-            for (int colOffset = -1; colOffset < 2; colOffset++) {
-                ChessPosition targetPosition = new ChessPosition(
-                        row + rowOffset,
-                        col + colOffset);
-                if (targetPosition.isOutOfBounds()) continue;
-                ChessPiece occupyingPiece = board.getPiece(targetPosition);
-                if (occupyingPiece == null) {
-                    possibleMoves.add(new ChessMove(position, targetPosition));
-                }
-                if (occupyingPiece != null && occupyingPiece.pieceColor != pieceColor) {
-                    possibleMoves.add(new ChessMove(position, targetPosition));
-                }
+            for (int coloOffset = -1; coloOffset < 2; coloOffset++) {
+                extracted(board, position, row, rowOffset, col, coloOffset, possibleMoves);
             }
         }
 
         return possibleMoves;
+    }
+
+    private void extracted(ChessBoard board, ChessPosition position, int row, int rowOffset, int col, int coloOffset, HashSet<ChessMove> possibleMoves) {
+        ChessPosition targetPosition = new ChessPosition(
+                row + rowOffset,
+                col + coloOffset);
+        if (targetPosition.isOutOfBounds()) return;
+        ChessPiece occupyingPiece = board.getPiece(targetPosition);
+        if (occupyingPiece == null) {
+            possibleMoves.add(new ChessMove(position, targetPosition));
+        }
+        if (occupyingPiece != null && occupyingPiece.pieceColor != pieceColor) {
+            possibleMoves.add(new ChessMove(position, targetPosition));
+        }
     }
 
     private HashSet<ChessMove> queenMoves(ChessBoard board, ChessPosition position) {
