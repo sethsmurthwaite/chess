@@ -1,6 +1,7 @@
 package serviceTests;
 import chess.ChessGame;
-import dataAccess.AuthDAO;
+import dataAccess.DatabaseManager;
+import dataAccess.MemoryAuthDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameName;
@@ -21,8 +22,8 @@ public class GameServiceTests {
 
     @BeforeEach
     public void setup() throws DataAccessException {
-        gameService = new GameService(new AuthDAO());
-        userService = new UserService(new AuthDAO());
+        gameService = new GameService(new MemoryAuthDAO(), new DatabaseManager());
+        userService = new UserService(new MemoryAuthDAO(), new DatabaseManager());
         user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
         auth = userService.register(user);
     }
