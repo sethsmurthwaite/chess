@@ -1,5 +1,6 @@
 package serviceTests;
-import dataAccess.AuthDAO;
+import dataAccess.DatabaseManager;
+import dataAccess.MemoryAuthDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
@@ -12,7 +13,7 @@ public class UserServiceTests {
 
     @BeforeEach
     public void setup() {
-        userService = new UserService(new AuthDAO());
+        userService = new UserService(new MemoryAuthDAO(), new DatabaseManager());
     }
 
     @Test
