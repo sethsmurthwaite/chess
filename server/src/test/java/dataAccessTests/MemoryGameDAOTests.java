@@ -1,17 +1,10 @@
 package dataAccessTests;
 
 import chess.ChessGame;
-import dataAccess.DBAuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.DatabaseManager;
 import dataAccess.MemoryGameDAO;
-import model.AuthData;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.*;
-import service.UserService;
-
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
