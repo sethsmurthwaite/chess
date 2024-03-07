@@ -23,7 +23,8 @@ public class MemoryAuthDAO implements AuthDAO {
         authTable.remove(authToken);
     }
 
-    public AuthData readAuth(String authToken) throws DataAccessException {
+    public AuthData readAuth(String auth) throws DataAccessException {
+        String authToken = (String) auth;
         String username = authTable.get(authToken);
         if (username == null) throw new DataAccessException("Bad Auth Token", 401);
         return new AuthData(authToken, username);

@@ -1,14 +1,10 @@
 package dataAccess;
 
-import com.google.gson.Gson;
 import model.AuthData;
-import model.UserData;
 
-import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class DBAuthDAO implements AuthDAO {
 
@@ -18,32 +14,47 @@ public class DBAuthDAO implements AuthDAO {
     }
     @Override
     public AuthData createAuth(String username) throws DataAccessException {
-        var statement = "INSERT INTO auth (name, type, json) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO auth (authToken, name) VALUES (?, ?)";
         String authToken = UUID.randomUUID().toString();
-        var id = dbman.executeUpdate(statement, username, authToken);
-        return new AuthData(username, authToken);
+        var id = dbman.executeUpdate(statement, authToken, username);
+        return new AuthData(authToken, username);
     }
 
     @Override
     public void clearAuth() {
-        var statement = "TRUNCATE pet";
+        var statement = "TRUNCATE auth";
         try {
             dbman.executeUpdate(statement);
         } catch (DataAccessException e) {
-            System.out.println("ERROR IN CLEAR AUTH IN DBAUTHDAO " + e);
+            System.out.println("ERROR IN clearAuth IN DBAUTHDAO " + e);
         }
     }
 
     @Override
     public void deleteAuth(String authToken) {
-
+        var statement = "DELETE FROM auth WHERE authToken = (?);";
+        try {
+            dbman.executeUpdate(statement, authToken);
+        } catch (DataAccessException e) {
+            System.out.println("ERROR IN deleteAuth IN DBAUTHDAO " + e);
+        }
     }
 
     @Override
     public AuthData readAuth(String authToken) throws DataAccessException {
-        return null;
+        var statement = "SELECT name FROM auth WHERE authToken = (?)";
+        AuthData authData = null;
+        List<Map<String, Object>> list = dbman.executeQuery(statement, authToken);
+        if (list.isEmpty()) throw new DataAccessException("Bad Auth Token", 401);
+        for (Map<String, Object> row : list) {
+            String username = (String) row.get("name");
+            if (username == null) throw new DataAccessException("Bad Auth Token", 401);
+            authData = new AuthData(authToken, (String) row.get("name"));
+        }
+        return authData;
     }
 
 
 
 }
+
