@@ -2,7 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dataAccess.AuthDAO;
+import dataAccess.DBAuthDAO;
+import dataAccess.DatabaseManager;
 import dataAccess.DataAccessException;
 import service.*;
 import model.*;
@@ -12,14 +13,20 @@ import java.util.HashSet;
 public class Server {
 
     Gson gson = new Gson();
-    AuthDAO authDAO = new AuthDAO();
-    UserService userService = new UserService(authDAO);
-    GameService gameService = new GameService(authDAO);
+//    MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    DatabaseManager dbman = new DatabaseManager();
+    DBAuthDAO authDAO = new DBAuthDAO(dbman);
+    UserService userService = new UserService(authDAO, dbman);
+    GameService gameService = new GameService(authDAO, dbman);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
         registerEndpoints();
+        try {
+            dbman.configureDatabase();
+        } catch (DataAccessException e) {
+        }
         Spark.awaitInitialization();
         return Spark.port();
     }

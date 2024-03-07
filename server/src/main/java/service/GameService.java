@@ -1,9 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
+import dataAccess.*;
 import model.GameData;
 import model.GameName;
 
@@ -12,10 +10,14 @@ import java.util.*;
 public class GameService {
 
     AuthDAO authDAO;
-    GameDAO gameDAO = new GameDAO();
+    DatabaseManager dbman;
+    GameDAO gameDAO = null;
 
-    public GameService(AuthDAO authDAO) {
+    public GameService(AuthDAO authDAO, DatabaseManager dbman) {
         this.authDAO = authDAO;
+        this.dbman = dbman;
+        if (dbman != null) this.gameDAO = new DBGameDAO(dbman);
+        else this.gameDAO = new MemoryGameDAO();
     }
 
     public HashSet<GameData> listGames(String authToken) throws DataAccessException {

@@ -1,8 +1,6 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import model.*;
 
 import java.util.Objects;
@@ -10,10 +8,14 @@ import java.util.Objects;
 public class UserService {
 
     AuthDAO authDAO;
-    UserDAO userDAO = new UserDAO();
+    DatabaseManager dbman;
+    UserDAO userDAO;
 
-    public UserService(AuthDAO authDAO) {
+    public UserService(AuthDAO authDAO, DatabaseManager dbman) {
         this.authDAO = authDAO;
+        this.dbman = dbman;
+        if (dbman != null) this.userDAO = new DBUserDAO(dbman);
+        else this.userDAO = new MemoryUserDAO();
     }
 
     public AuthData register(UserData user) throws DataAccessException {
