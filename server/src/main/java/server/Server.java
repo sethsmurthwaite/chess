@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import dataAccess.DBAuthDAO;
 import dataAccess.DatabaseManager;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
 import service.*;
 import model.*;
 import spark.*;

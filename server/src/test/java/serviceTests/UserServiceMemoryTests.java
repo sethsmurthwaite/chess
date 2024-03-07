@@ -1,5 +1,4 @@
 package serviceTests;
-import dataAccess.DatabaseManager;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;

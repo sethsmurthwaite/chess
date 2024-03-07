@@ -3,7 +3,6 @@ package serviceTests;
 import dataAccess.DBAuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
-import dataAccess.MemoryAuthDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;

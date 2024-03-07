@@ -1,6 +1,5 @@
 package serviceTests;
 import chess.ChessGame;
-import dataAccess.DatabaseManager;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;
