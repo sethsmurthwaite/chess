@@ -11,12 +11,24 @@ public class GameService {
 
     AuthDAO authDAO;
     DatabaseManager dbman;
-    GameDAO gameDAO = new MemoryGameDAO();
-//    GameDAO gameDAO = new DBGameDAO(dbman);
+    GameDAO gameDAO = null;
 
     public GameService(AuthDAO authDAO, DatabaseManager dbman) {
         this.authDAO = authDAO;
         this.dbman = dbman;
+        if (dbman != null) this.gameDAO = new DBGameDAO(dbman);
+        else this.gameDAO = new MemoryGameDAO();
+    }
+
+    public void function() {
+        try {
+            int gameID = gameDAO.createGame("game1");
+            int gameID2 = gameDAO.createGame("game2");
+            HashSet<GameData> games = gameDAO.listGames();
+            System.out.println("hello");
+        } catch (DataAccessException e) {
+            System.out.println("whoopsies");
+        }
     }
 
     public HashSet<GameData> listGames(String authToken) throws DataAccessException {

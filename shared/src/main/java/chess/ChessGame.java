@@ -33,7 +33,7 @@ public class ChessGame {
     public void setTeamTurn(TeamColor team) {
         currentTeamTurn = team;
     }
-
+    public void setAnExistingBoard(ChessBoard board) {this.board = board;}
     private void advanceTurn() {
         if (getTeamTurn() == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);

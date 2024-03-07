@@ -9,12 +9,13 @@ public class UserService {
 
     AuthDAO authDAO;
     DatabaseManager dbman;
-    UserDAO userDAO = new MemoryUserDAO();
-//    UserDAO userDAO = new DBUserDAO(this.dbman);
+    UserDAO userDAO;
 
     public UserService(AuthDAO authDAO, DatabaseManager dbman) {
         this.authDAO = authDAO;
         this.dbman = dbman;
+        if (dbman != null) this.userDAO = new DBUserDAO(dbman);
+        else this.userDAO = new MemoryUserDAO();
     }
 
     public AuthData register(UserData user) throws DataAccessException {

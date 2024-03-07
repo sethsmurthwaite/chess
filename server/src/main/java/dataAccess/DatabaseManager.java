@@ -1,6 +1,7 @@
 package dataAccess;
 
 import chess.ChessGame;
+import com.google.gson.JsonObject;
 import model.AuthData;
 import model.UserData;
 
@@ -79,20 +80,12 @@ public class DatabaseManager {
     public int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof UserData p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
+                extracted(params, ps);
                 ps.executeUpdate();
-
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
-
                 return 0;
             }
         } catch (SQLException e) {
@@ -104,13 +97,7 @@ public class DatabaseManager {
         List<Map<String, Object>> resultList = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection()) {
             try(PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof ChessGame p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
+                extracted(params, ps);
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     Map<String, Object> row = new HashMap<>();
@@ -130,6 +117,17 @@ public class DatabaseManager {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), 500);
         }
         return resultList;
+    }
+
+    private static void extracted(Object[] params, PreparedStatement ps) throws SQLException {
+        for (var i = 0; i < params.length; i++) {
+            var j = params[i];
+            var param = params[i];
+            if (param instanceof String p) ps.setString(i + 1, p);
+            else if (param instanceof Integer p) ps.setInt(i + 1, p);
+            else if (param instanceof JsonObject p) ps.setString(i + 1, String.valueOf(p));
+            else if (param == null) ps.setNull(i + 1, NULL);
+        }
     }
 
     private final String[] createStatements = {
@@ -154,8 +152,8 @@ public class DatabaseManager {
             """
             CREATE TABLE IF NOT EXISTS game (
                 `id` int NOT NULL AUTO_INCREMENT,
-                `whiteUsername` varchar(256) NOT NULL,
-                `blackUsername` varchar(256) NOT NULL,
+                `whiteUsername` varchar(256),
+                `blackUsername` varchar(256),
                 `gameName` varchar(256) NOT NULL,
                 `game` json NOT NULL,
                 PRIMARY KEY (`id`),
