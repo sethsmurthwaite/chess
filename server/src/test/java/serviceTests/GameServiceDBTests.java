@@ -1,4 +1,4 @@
-package dataAccessTests;
+package serviceTests;
 
 import chess.ChessGame;
 import dataAccess.DataAccessException;
@@ -75,6 +75,15 @@ public class GameServiceDBTests {
     @Order(6)
     @DisplayName("Negative Join Game")
     public void failJoin() {
+        assertThrows(DataAccessException.class, () -> gameService.joinGame("Seth", ChessGame.TeamColor.WHITE, 1));
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Positive Clear Game")
+    public void successClear() throws DataAccessException {
+        gameService.createGame(new GameName("newGame"), auth.authToken());
+        gameService.clearGames();
         assertThrows(DataAccessException.class, () -> gameService.joinGame("Seth", ChessGame.TeamColor.WHITE, 1));
     }
 }
