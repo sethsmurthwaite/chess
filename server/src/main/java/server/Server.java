@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataAccess.DBAuthDAO;
 import dataAccess.DatabaseManager;
-import dataAccess.MemoryAuthDAO;
 import dataAccess.DataAccessException;
+import dataAccess.MemoryAuthDAO;
 import service.*;
 import model.*;
 import spark.*;
@@ -19,8 +19,6 @@ public class Server {
     DBAuthDAO authDAO = new DBAuthDAO(dbman);
     UserService userService = new UserService(authDAO, dbman);
     GameService gameService = new GameService(authDAO, dbman);
-
-
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

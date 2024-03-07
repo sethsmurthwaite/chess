@@ -1,9 +1,11 @@
 package dataAccess;
 
+import chess.ChessGame;
+import model.AuthData;
 import model.UserData;
 
 import java.sql.*;
-import java.util.Properties;
+import java.util.*;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -98,32 +100,67 @@ public class DatabaseManager {
         }
     }
 
+    public List<Map<String, Object>> executeQuery(String statement, Object... params) throws DataAccessException {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection()) {
+            try(PreparedStatement ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    else if (param instanceof ChessGame p) ps.setString(i + 1, p.toString());
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    ResultSetMetaData metaData = rs.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object columnValue = rs.getObject(i);
+                        row.put(columnName, columnValue);
+                    }
+                    resultList.add(row);
+                }
+            } catch (SQLException e) {
+                System.out.println("hello there:");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), 500);
+        }
+        return resultList;
+    }
+
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  auth (
-              `name` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL
-              PRIMARY KEY (`name`),
-              INDEX(name),
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            CREATE TABLE IF NOT EXISTS auth (
+                `authToken` varchar(256) NOT NULL,
+                `name` varchar(256) NOT NULL,
+                PRIMARY KEY (`authToken`),
+                INDEX(authToken)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;                                                             
             """,
             """
-            CREATE TABLE IF NOT EXISTS  user (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(name),
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            CREATE TABLE IF NOT EXISTS user (
+                `id` int NOT NULL AUTO_INCREMENT,
+                `name` varchar(256) NOT NULL,
+                `password` varchar(256) NOT NULL,
+                `email` varchar(256) NOT NULL,
+                PRIMARY KEY (`id`),
+                INDEX(id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """,
             """
-            CREATE TABLE IF NOT EXISTS  game (
-              `id` int NOT NULL AUTO_INCREMENT,
-              'gameData' json NOT NULL
-              PRIMARY KEY (`id`),
-              INDEX(id),
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            CREATE TABLE IF NOT EXISTS game (
+                `id` int NOT NULL AUTO_INCREMENT,
+                `whiteUsername` varchar(256) NOT NULL,
+                `blackUsername` varchar(256) NOT NULL,
+                `gameName` varchar(256) NOT NULL,
+                `game` json NOT NULL,
+                PRIMARY KEY (`id`),
+                INDEX(id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """
     };
 
