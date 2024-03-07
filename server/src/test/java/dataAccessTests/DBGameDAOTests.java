@@ -1,7 +1,9 @@
 package dataAccessTests;
 
 import chess.ChessGame;
+import dataAccess.DBGameDAO;
 import dataAccess.DataAccessException;
+import dataAccess.DatabaseManager;
 import dataAccess.MemoryGameDAO;
 import model.GameData;
 import org.junit.jupiter.api.*;
@@ -12,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DBGameDAOTests {
 
-    MemoryGameDAO gameDAO = new MemoryGameDAO();
+    DatabaseManager dbman = new DatabaseManager();
+    DBGameDAO gameDAO = new DBGameDAO(dbman);
 
     @BeforeEach
     public void setup() throws DataAccessException {
