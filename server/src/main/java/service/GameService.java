@@ -20,17 +20,6 @@ public class GameService {
         else this.gameDAO = new MemoryGameDAO();
     }
 
-    public void function() {
-        try {
-            int gameID = gameDAO.createGame("game1");
-            int gameID2 = gameDAO.createGame("game2");
-            HashSet<GameData> games = gameDAO.listGames();
-            System.out.println("hello");
-        } catch (DataAccessException e) {
-            System.out.println("whoopsies");
-        }
-    }
-
     public HashSet<GameData> listGames(String authToken) throws DataAccessException {
         authDAO.readAuth(authToken);
         return gameDAO.listGames();

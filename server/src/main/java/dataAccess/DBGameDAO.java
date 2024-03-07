@@ -48,16 +48,7 @@ public class DBGameDAO implements GameDAO {
         var statement = "select * from game";
         try {
             List<Map<String,Object>> list = dbman.executeQuery(statement);
-            for (Map<String,Object> row : list) {
-                int gameID = (int) row.get("id");
-                String whiteUsername = (String) row.get("whiteUsername");
-                String blackUsername = (String) row.get("blackUsername");
-                String gameName = (String) row.get("gameName");
-                String chessString = (String) row.get("game");
-                JsonObject chessJson = gson.fromJson(chessString, JsonObject.class);
-                ChessGame chessGame = gson.fromJson(chessJson, ChessGame.class);
-                gameList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame));
-            }
+            parseGameResponse(gameList, list);
         } catch (DataAccessException e) {
             System.out.println("Error in listGames in DBGameDAO: " + e.getMessage());
         }
@@ -75,13 +66,58 @@ public class DBGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
-        return null;
+    public GameData getGame(int gameId) throws DataAccessException {
+        HashSet<GameData> gameList = new HashSet<>();
+        GameData returnedGame = null;
+        var statement = "SELECT * FROM game WHERE id = ?";
+        try {
+            List<Map<String, Object>> response = dbman.executeQuery(statement, gameId);
+            if (response.isEmpty()) throw new DataAccessException("Invalid Game ID", 400);
+            parseGameResponse(gameList, response);
+            for (GameData g : gameList) {
+                returnedGame = g;
+            }
+        } catch (DataAccessException e) {
+            System.out.println("Error in getGame in DBGameUser: " + e.getMessage());
+            throw new DataAccessException("Invalid Game ID", 400);
+        }
+        return returnedGame;
+    }
+
+    private void parseGameResponse(HashSet<GameData> gameList, List<Map<String, Object>> response) {
+        for (Map<String, Object> row : response) {
+            int gameID = (int) row.get("id");
+            String whiteUsername = (String) row.get("whiteUsername");
+            String blackUsername = (String) row.get("blackUsername");
+            String gameName = (String) row.get("gameName");
+            String chessString = (String) row.get("game");
+            JsonObject chessJson = gson.fromJson(chessString, JsonObject.class);
+            ChessGame chessGame = gson.fromJson(chessJson, ChessGame.class);
+            gameList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame));
+        }
     }
 
     @Override
     public void updateGame(GameData newGame) {
-
+        var statement = """
+                INSERT INTO game (id, whiteUsername, blackUsername, gameName, game)
+                VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    whiteUsername = VALUES(whiteUsername),
+                    blackUsername = VALUES(blackUsername),
+                    gameName = VALUES(gameName),
+                    game = VALUES(game);
+                """;
+        String whiteUsername = newGame.whiteUsername();
+        String blackUsername = newGame.blackUsername();
+        String gameName = newGame.gameName();
+        ChessGame game = newGame.game();
+        int id = newGame.gameID();
+        try {
+            dbman.executeUpdate(statement, id, whiteUsername, blackUsername, gameName, gson.toJson(game));
+        } catch (DataAccessException e) {
+            System.out.println("not working");
+        }
     }
 
 

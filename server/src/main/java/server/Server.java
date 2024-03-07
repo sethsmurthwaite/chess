@@ -14,7 +14,6 @@ import java.util.HashSet;
 public class Server {
 
     Gson gson = new Gson();
-//    DatabaseManager dbman = null;
 //    MemoryAuthDAO authDAO = new MemoryAuthDAO();
     DatabaseManager dbman = new DatabaseManager();
     DBAuthDAO authDAO = new DBAuthDAO(dbman);
@@ -28,7 +27,7 @@ public class Server {
         try {
             dbman.configureDatabase();
         } catch (DataAccessException e) {
-            System.out.println("error in run in server.java " + e.getMessage());
+            System.out.println("error in run in server.java " + e.getMessage()                                                                                                                           );
         }
         Spark.awaitInitialization();
         return Spark.port();
