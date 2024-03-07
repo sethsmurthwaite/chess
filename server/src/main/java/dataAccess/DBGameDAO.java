@@ -32,7 +32,6 @@ public class DBGameDAO implements GameDAO {
         try {
             gameID = dbman.executeUpdate(statement, whiteUsername, blackUsername, gameName, gson.toJson(chessGame));
         } catch (DataAccessException e) {
-            System.out.println("Error in createUser in DBGameDAO: " + e.getMessage());
         }
         return gameID;
     }
@@ -50,7 +49,6 @@ public class DBGameDAO implements GameDAO {
             List<Map<String,Object>> list = dbman.executeQuery(statement);
             parseGameResponse(gameList, list);
         } catch (DataAccessException e) {
-            System.out.println("Error in listGames in DBGameDAO: " + e.getMessage());
         }
         return gameList;
     }
@@ -61,7 +59,6 @@ public class DBGameDAO implements GameDAO {
         try {
             dbman.executeUpdate(statement);
         } catch (DataAccessException e) {
-            System.out.println("ERROR IN clearAuth IN DBGameDAO " + e);
         }
     }
 
@@ -78,7 +75,6 @@ public class DBGameDAO implements GameDAO {
                 returnedGame = g;
             }
         } catch (DataAccessException e) {
-            System.out.println("Error in getGame in DBGameUser: " + e.getMessage());
             throw new DataAccessException("Invalid Game ID", 400);
         }
         return returnedGame;
@@ -116,7 +112,6 @@ public class DBGameDAO implements GameDAO {
         try {
             dbman.executeUpdate(statement, id, whiteUsername, blackUsername, gameName, gson.toJson(game));
         } catch (DataAccessException e) {
-            System.out.println("not working");
         }
     }
 

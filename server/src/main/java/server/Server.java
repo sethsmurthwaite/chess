@@ -27,7 +27,6 @@ public class Server {
         try {
             dbman.configureDatabase();
         } catch (DataAccessException e) {
-            System.out.println("error in run in server.java " + e.getMessage()                                                                                                                           );
         }
         Spark.awaitInitialization();
         return Spark.port();

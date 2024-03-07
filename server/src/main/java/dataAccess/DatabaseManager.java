@@ -111,7 +111,7 @@ public class DatabaseManager {
                     resultList.add(row);
                 }
             } catch (SQLException e) {
-                System.out.println("hello there:");
+
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()), 500);

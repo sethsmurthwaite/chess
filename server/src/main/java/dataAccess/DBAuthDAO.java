@@ -27,7 +27,6 @@ public class DBAuthDAO implements AuthDAO {
         try {
             dbman.executeUpdate(statement);
         } catch (DataAccessException e) {
-            System.out.println("ERROR IN clearAuth IN DBAUTHDAO " + e);
         }
     }
 
@@ -37,7 +36,6 @@ public class DBAuthDAO implements AuthDAO {
         try {
             dbman.executeUpdate(statement, authToken);
         } catch (DataAccessException e) {
-            System.out.println("ERROR IN deleteAuth IN DBAUTHDAO " + e);
         }
     }
 

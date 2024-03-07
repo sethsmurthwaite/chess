@@ -25,7 +25,6 @@ public class DBUserDAO implements UserDAO {
         try {
             var id = dbman.executeUpdate(statement, username, password, email);
         } catch (DataAccessException e) {
-            System.out.println("Error in createUser in DBUserDAO: " + e.getMessage());
         }
     }
 
@@ -37,9 +36,7 @@ public class DBUserDAO implements UserDAO {
         try {
             list = dbman.executeQuery(statement, username);
         } catch (DataAccessException e) {
-            System.out.println("Error in readUser in DBUserDAO: " + e.getMessage());
         }
-        if (list.isEmpty()) System.out.println("Error in readUser in DBUserDAO: list is empty.");
         for (Map<String, Object> row : list) {
             userData = new UserData(username, (String) row.get("password"), (String) row.get("email"));
         }
@@ -52,7 +49,6 @@ public class DBUserDAO implements UserDAO {
         try {
             dbman.executeUpdate(statement);
         } catch (DataAccessException e) {
-            System.out.println("ERROR IN clearAuth IN DBUserDAO " + e);
         }
     }
 
