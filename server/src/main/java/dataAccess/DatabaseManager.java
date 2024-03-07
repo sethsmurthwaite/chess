@@ -1,10 +1,6 @@
 package dataAccess;
 
-import chess.ChessGame;
 import com.google.gson.JsonObject;
-import model.AuthData;
-import model.UserData;
-
 import java.sql.*;
 import java.util.*;
 
@@ -121,12 +117,15 @@ public class DatabaseManager {
 
     private static void extracted(Object[] params, PreparedStatement ps) throws SQLException {
         for (var i = 0; i < params.length; i++) {
-            var j = params[i];
             var param = params[i];
-            if (param instanceof String p) ps.setString(i + 1, p);
-            else if (param instanceof Integer p) ps.setInt(i + 1, p);
-            else if (param instanceof JsonObject p) ps.setString(i + 1, String.valueOf(p));
-            else if (param == null) ps.setNull(i + 1, NULL);
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case JsonObject p -> ps.setString(i + 1, String.valueOf(p));
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
         }
     }
 

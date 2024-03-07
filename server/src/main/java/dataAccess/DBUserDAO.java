@@ -1,13 +1,9 @@
 package dataAccess;
 
-import model.AuthData;
 import model.UserData;
-import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class DBUserDAO implements UserDAO {
     public final DatabaseManager dbman;
@@ -23,7 +19,7 @@ public class DBUserDAO implements UserDAO {
         String email = u.email();
         String statement = "INSERT INTO user (`name`, `password`, `email`) VALUES (?, ?, ?)";
         try {
-            var id = dbman.executeUpdate(statement, username, password, email);
+            dbman.executeUpdate(statement, username, password, email);
         } catch (DataAccessException e) {
         }
     }
@@ -37,6 +33,7 @@ public class DBUserDAO implements UserDAO {
             list = dbman.executeQuery(statement, username);
         } catch (DataAccessException e) {
         }
+        assert list != null;
         for (Map<String, Object> row : list) {
             userData = new UserData(username, (String) row.get("password"), (String) row.get("email"));
         }
