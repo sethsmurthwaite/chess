@@ -1,29 +1,33 @@
 package serviceTests;
+
 import chess.ChessGame;
-import dataAccess.DatabaseManager;
-import dataAccess.MemoryAuthDAO;
 import dataAccess.DataAccessException;
+import dataAccess.MemoryAuthDAO;
 import model.AuthData;
 import model.GameName;
 import model.UserData;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 import service.GameService;
 import service.UserService;
 
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class GameServiceTests {
-    GameService gameService;
-    UserService userService;
+public class GameServiceDBTests {
+    GameService gameService = new GameService(new MemoryAuthDAO(), null);
+    UserService userService = new UserService(new MemoryAuthDAO(), null);
     UserData user;
     AuthData auth;
 
     @BeforeEach
     public void setup() throws DataAccessException {
-        gameService = new GameService(new MemoryAuthDAO(), new DatabaseManager());
-        userService = new UserService(new MemoryAuthDAO(), new DatabaseManager());
+        userService.clearUsers();
+        gameService.clearGames();
         user = new UserData("Seth Smurthwaite", "reallygoodpassword", "no@gmail.com");
         auth = userService.register(user);
     }
