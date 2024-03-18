@@ -20,7 +20,6 @@ public class DBAuthDAOTests {
     public void cleanup() throws DataAccessException {
         authDAO.clearAuth();
     }
-
     @Test
     @Order(1)
     @DisplayName("Positive Create Auth")
