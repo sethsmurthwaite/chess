@@ -51,8 +51,7 @@ public class DBGameDAO implements GameDAO {
         var statement = "TRUNCATE game";
         try {
             dbman.executeUpdate(statement);
-        } catch (DataAccessException e) {
-        }
+        } catch (DataAccessException e) {}
     }
 
     @Override
