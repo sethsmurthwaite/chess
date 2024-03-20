@@ -41,7 +41,7 @@ public class ChessServerFacade {
 
         return auth;
     }
-    public AuthData login(UserData user) throws IOException, InterruptedException {
+    public static AuthData login(UserData user) throws IOException, InterruptedException {
         String requestBody = gson.toJson(user);
 
         AuthData auth;
@@ -62,7 +62,7 @@ public class ChessServerFacade {
         }
         return auth;
     }
-    public void logout(AuthData auth) throws IOException, InterruptedException {
+    public static void logout(AuthData auth) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/session"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", auth.authToken())
@@ -70,7 +70,7 @@ public class ChessServerFacade {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) throw new IOException("Failed to logout: " + response.statusCode() + " " + response.body());
     }
-    public void join(AuthData auth, String color, GameData game) throws IOException, InterruptedException {
+    public static void join(AuthData auth, String color, GameData game) throws IOException, InterruptedException {
         JsonObject obj = new JsonObject();
         obj.addProperty("playerColor", color);
         obj.addProperty("gameID", game.gameID());
@@ -83,7 +83,7 @@ public class ChessServerFacade {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) throw new IOException("Failed to join game: " + response.statusCode() + " " + response.body());
     }
-    public void create(String gameName, AuthData auth) throws IOException, InterruptedException {
+    public static void create(String gameName, AuthData auth) throws IOException, InterruptedException {
         String requestBody = new Gson().toJson(Map.of("gameName", gameName));
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/game"))
                 .header("Content-Type", "application/json")
@@ -94,7 +94,7 @@ public class ChessServerFacade {
             throw new Error("Something went wrong in serverfacade create(): " + response.statusCode());
         }
     }
-    public GameList list(AuthData auth) throws IOException, InterruptedException {
+    public static GameList list(AuthData auth) throws IOException, InterruptedException {
         GameList gameList = null;
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/game"))
                 .header("Content-Type", "application/json")
