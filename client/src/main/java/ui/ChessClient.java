@@ -14,16 +14,21 @@ import java.util.*;
 import static ui.EscapeSequences.*;
 
 public class ChessClient {
+    static ChessServerFacade facade;
     private static boolean signedIn = false;
     private static PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-    UserData user = null;
-    GameData game = null;
-    AuthData auth = null;
+    static UserData user;
+    GameData game;
+    static GameData[] gameList;
+    static AuthData auth;
 
 
 
     public static void main(String[] args) {
-        out.println("♕ Welcome to 240 Chess!\n\tType \"help\" to get started.");
+        facade = new ChessServerFacade();
+
+        setTextColor("Green");
+        out.print("\tWelcome to 240 Chess!\n\tType \"help\" to get started.");
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
@@ -51,7 +56,7 @@ public class ChessClient {
         }
         setTextColor("White");
         setTextStyle("Bold");
-        out.println("\nThanks for playing 240 Chess! ♕");
+        out.println("\n\tThanks for playing 240 Chess!");
     }
 
 
@@ -92,7 +97,7 @@ public class ChessClient {
         else {
             setTextColor("Green");
             setTextStyle("Bold");
-            out.print("\t" + "Create <NAME>");
+            out.print("\t" + "create <NAME>");
             setTextColor("Light Grey");
             setTextStyle("Italic");
             out.print(" - Create a game");
@@ -152,9 +157,26 @@ public class ChessClient {
         String username = arguments[1];
         String password = arguments[2];
         String email = arguments[3];
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
-        out.print("\t" + username + EMPTY + password + EMPTY + email);
+
+        user = new UserData(username, password, email);
+
+        try {
+            auth = facade.register(user);
+        } catch (Error | IOException | InterruptedException e) {
+            setTextColor("Red");
+            out.print("\t" + e.getMessage());
+            user = null;
+            return;
+        }
+
+        setTextColor("Green");
+        out.print("\tSuccessfully registered user: ");
+        setTextColor("White");
+        setTextStyle("Bold");
+        out.print(user.username());
+        out.print(RESET_TEXT_BOLD_FAINT);
+        setTextColor("Green");
+        out.print("\n\tSuccessfully logged in!\n\tType \"help\" for available commands");
         signedIn = true;
     }
     private static void login(String[] arguments) {
@@ -168,18 +190,43 @@ public class ChessClient {
         }
         String username = arguments[1];
         String password = arguments[2];
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
-        out.print("\t" + username + EMPTY + password);
-        signedIn = true;
+        user = new UserData(username, password, "");
+        try {
+            auth = facade.login(user);
+            signedIn = true;
+            setTextColor("Green");
+            out.print("\tSuccessfully logged in user: ");
+            setTextColor("White");
+            setTextStyle("Bold");
+            out.print(user.username());
+            out.print(RESET_TEXT_BOLD_FAINT);
+            setTextColor("Green");
+            out.print("\n\tType \"help\" for available commands");
+        } catch (Error | IOException | InterruptedException e) {
+            setTextColor("Red");
+            out.print("\tError while logging in.\n\t" + e.getMessage());
+        }
     }
     private static void logout() {
         if (!signedIn) {
             invalidCommand();
             return;
         }
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
+        try {
+            facade.logout(auth);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        setTextColor("Green");
+        out.print("\tLogged out user: ");
+        setTextColor("White");
+        setTextStyle("Bold");
+        out.print(user.username());
+        out.print(RESET_TEXT_BOLD_FAINT);
+        setTextColor("Green");
+        out.print("\n\tGoodbye!");
+        user = null;
+        auth = null;
         signedIn = false;
     }
     private static void create(String[] arguments) {
@@ -192,9 +239,26 @@ public class ChessClient {
             return;
         }
         String gameName = arguments[1];
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
-        out.print("\t" + gameName);
+
+        GameName name;
+        try {
+            facade.create(gameName, auth);
+        } catch (Error | IOException | InterruptedException e) {
+            setTextColor("Red");
+            out.print("\tError.\n\t" + e.getMessage());
+            return;
+        }
+        setTextColor("Green");
+        out.print("\tSuccessfully created game ");
+        setTextColor("White");
+        setTextStyle("Bold");
+        out.print(gameName);
+        out.print(RESET_TEXT_BOLD_FAINT);
+        try {
+            gameList = getList();
+        } catch (Error | IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
     private static void join(String[] arguments) {
         if (!signedIn) {
@@ -205,7 +269,7 @@ public class ChessClient {
             invalidArguments();
             return;
         }
-        String gameId = arguments[1];
+        int gameId = Integer.parseInt(arguments[1]);
         String color = arguments.length == 3 ? arguments[2] : "None";
         if (!(Objects.equals(color, "BLACK")
                 || Objects.equals(color, "WHITE")
@@ -213,15 +277,31 @@ public class ChessClient {
             invalidArguments();
             return;
         }
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
-        out.print("\t" + gameId + EMPTY + color);
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
 
-        out.println();
-        printBoard("WHITE", board);
-        printBoard("BLACK", board);
+        try {
+            gameList = getList();
+        } catch (Error | IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (!(0 < gameId && gameId <= gameList.length)) {
+            setTextColor("Red");
+            out.print("\tInvalid Game ID");
+            return;
+        }
+
+        GameData game = gameList[gameId - 1];
+
+        try {
+            facade.join(auth, color, game);
+            ChessBoard board = game.game().getBoard();
+            printBoard("WHITE", board);
+            printBoard("BLACK", board);
+//            if (!(color.equals("None"))) printBoard(color, board);
+        } catch (Error | IOException | InterruptedException e) {
+            setTextColor("Red");
+            out.print("\tCannot join game.");
+        }
     }
     private static void observe(String[] arguments) {
         if (!signedIn) {
@@ -232,29 +312,79 @@ public class ChessClient {
             invalidArguments();
             return;
         }
-        String gameId = arguments[1];
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
-        out.print("\t" + gameId);
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
+        int gameId = Integer.parseInt(arguments[1]);
 
-        out.println();
-        printBoard("WHITE", board);
-        printBoard("BLACK", board);
+        try {
+            gameList = getList();
+        } catch (Error | IOException | InterruptedException e) {
+            out.print("There was an error while attempting to update the game list");
+        }
+
+        if (!(0 < gameId && gameId <= gameList.length)) {
+            setTextColor("Red");
+            out.print("\tInvalid Game ID");
+            return;
+        }
+
+        GameData game = gameList[gameId - 1];
+
+        try {
+            String color = "None";
+            facade.join(auth, color, game);
+            ChessBoard board = game.game().getBoard();
+//            if (!(color.equals("None"))) printBoard(color, board);
+
+            printBoard("WHITE", board);
+            printBoard("BLACK", board);
+        } catch (Error | IOException | InterruptedException e) {
+            setTextColor("Red");
+            out.print("\tCannot observe game.");
+        }
+
+
     }
     private static void list() {
+
         if (!signedIn) {
             invalidCommand();
             return;
         }
-        setTextColor("Red");
-        out.print("UNIMPLEMENTED");
+
+        GameList resultGameList;
+
+        try {
+
+            GameData[] sortedList = getList();
+
+            out.printf("\n\t%-14s | %-20s | %-20s | %-20s%n", "-- Game ID --", "-- White Player --", "-- Black Player --", "-- Game Name --");
+            for (GameData gameData : sortedList) {
+                int id = gameData.gameID();
+                String white = gameData.whiteUsername();
+                String black = gameData.blackUsername();
+                String gameName = gameData.gameName();
+                out.printf("\t%-14d | %-20s | %-20s | %-20s%n", id, white != null ? white : "null", black != null ? black : "null", gameName);
+            }
+
+        } catch (Error | IOException | InterruptedException e) {
+
+            setTextStyle("Red");
+            out.print("\tCannot list games,\n\t" + e.getMessage());
+
+        }
     }
 
 
 
-
+    private static GameData[] getList() throws IOException, InterruptedException {
+        GameList resultGameList;
+        resultGameList = facade.list(auth);
+        HashSet<GameData> games = resultGameList.games();
+        ArrayList<GameData> gamesList = new ArrayList<>(games);
+        gamesList.sort(Comparator.comparingInt(GameData::gameID));
+        GameData[] sortedList = gamesList.toArray(new GameData[0]);
+        gameList = sortedList;
+        return sortedList;
+    }
     private static void printBoard(String color, ChessBoard board) {
 
         boolean isWhite = color.equals("WHITE");
