@@ -15,11 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServerFacadeTests {
 
     private static Server server;
+    private static ChessServerFacade facade;
 
     @BeforeAll
     public static void init() {
         server = new Server();
         var port = server.run(0);
+        facade = new ChessServerFacade(port);
         System.out.println("Started test HTTP server on " + port);
     }
 
@@ -31,26 +33,26 @@ public class ServerFacadeTests {
     @Test
     public void registerPositive() throws IOException, InterruptedException {
         UserData user = new UserData("test_user1", "password123", "");
-        AuthData auth = ChessServerFacade.register(user);
+        AuthData auth = facade.register(user);
         assertNotNull(auth);
         assertNotNull(auth.authToken());
-        ChessServerFacade.logout(auth);
+        facade.logout(auth);
     }
 
     @Test
     public void registerNegative() {
         UserData existingUser = new UserData("test_user", "password123", "");
         assertThrows(Error.class, () -> {
-            ChessServerFacade.register(existingUser);
+            facade.register(existingUser);
         });
     }
 
     @Test
     public void loginPositive() throws IOException, InterruptedException {
-        AuthData auth1 = ChessServerFacade.register(new UserData("test_user", "password123", ""));
-        ChessServerFacade.logout(auth1);
+        AuthData auth1 = facade.register(new UserData("test_user", "password123", ""));
+        facade.logout(auth1);
         UserData user = new UserData("test_user", "password123", "");
-        AuthData auth = ChessServerFacade.login(user);
+        AuthData auth = facade.login(user);
         assertNotNull(auth);
     }
 
@@ -58,34 +60,34 @@ public class ServerFacadeTests {
     public void loginNegative() {
         UserData invalidUser = new UserData("invalid_user", "invalid_password", "");
         assertThrows(Error.class, () -> {
-            ChessServerFacade.login(invalidUser);
+            facade.login(invalidUser);
         });
     }
 
     @Test
     public void logoutPositive() throws IOException, InterruptedException {
-        AuthData auth = ChessServerFacade.register(new UserData("person", "pass", ""));
+        AuthData auth = facade.register(new UserData("person", "pass", ""));
         assertDoesNotThrow(() -> {
-            ChessServerFacade.logout(auth);
+            facade.logout(auth);
         });
     }
 
     @Test
     public void logoutNegative() throws IOException, InterruptedException {
-        AuthData auth = ChessServerFacade.register(new UserData("person1", "pass1", ""));
-        ChessServerFacade.logout(auth);
+        AuthData auth = facade.register(new UserData("person1", "pass1", ""));
+        facade.logout(auth);
         assertThrows(IOException.class, () -> {
-            ChessServerFacade.logout(auth);
+            facade.logout(auth);
         });
     }
 
     @Test
     public void joinPositive() throws IOException, InterruptedException {
-        AuthData auth = ChessServerFacade.register(new UserData("person2", "pass2", ""));
-        ChessServerFacade.create("game", auth);
+        AuthData auth = facade.register(new UserData("person2", "pass2", ""));
+        facade.create("game", auth);
         GameData game = new GameData(1, null,null,"game", null);
         assertDoesNotThrow(() -> {
-            ChessServerFacade.join(auth, "WHITE", game);
+            facade.join(auth, "WHITE", game);
         });
     }
 
@@ -94,17 +96,17 @@ public class ServerFacadeTests {
         AuthData invalidAuth = new AuthData("invalid_auth_token", "fake_name");
         GameData game = new GameData(1, null,null,"game1", null);
         assertThrows(IOException.class, () -> {
-            ChessServerFacade.join(invalidAuth, "white", game);
+            facade.join(invalidAuth, "white", game);
         });
     }
 
     @Test
     public void createPositive() throws IOException, InterruptedException {
-        AuthData auth = ChessServerFacade.register(new UserData("person3", "pass3", ""));
-        ChessServerFacade.create("game1", auth);
+        AuthData auth = facade.register(new UserData("person3", "pass3", ""));
+        facade.create("game1", auth);
         GameData game = new GameData(2, null,null,"game1", null);
         assertDoesNotThrow(() -> {
-            ChessServerFacade.join(auth, "WHITE", game);
+            facade.join(auth, "WHITE", game);
         });
     }
 
@@ -112,25 +114,25 @@ public class ServerFacadeTests {
     public void createNegative() {
         AuthData invalidAuth = new AuthData("invalid_auth_token", "");
         assertThrows(Error.class, () -> {
-            ChessServerFacade.create("game1", invalidAuth);
+            facade.create("game1", invalidAuth);
         });
     }
 
     @Test
     public void listPositive() throws IOException, InterruptedException {
-        AuthData auth = ChessServerFacade.register(new UserData("person4", "pass4", ""));
-        ChessServerFacade.create("game1", auth);
+        AuthData auth = facade.register(new UserData("person4", "pass4", ""));
+        facade.create("game1", auth);
         GameData game = new GameData(3, null,null,"game1", null);
-        GameList gameList = ChessServerFacade.list(auth);
+        GameList gameList = facade.list(auth);
         Assertions.assertNotEquals(0, gameList.games().size());
     }
 
     @Test
     public void listNegative() throws IOException, InterruptedException {
-        AuthData auth = ChessServerFacade.register(new UserData("person5", "pass6", ""));
-        ChessServerFacade.create("game1", auth);
+        AuthData auth = facade.register(new UserData("person5", "pass6", ""));
+        facade.create("game1", auth);
         GameData game = new GameData(4, null,null,"game1", null);
-        GameList gameList = ChessServerFacade.list(auth);
+        GameList gameList = facade.list(auth);
         Assertions.assertNotEquals(0, gameList.games().size());
     }
 }

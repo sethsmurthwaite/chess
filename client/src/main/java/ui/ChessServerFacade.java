@@ -16,10 +16,12 @@ import java.util.Map;
 
 public class ChessServerFacade {
     static Gson gson = new Gson();
-    private static final String URL = "http://localhost:8080";
+    private static String URL;
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
-
+    public ChessServerFacade(int port) {
+        URL = "http://localhost:" + port;
+    }
 
     public static AuthData register(UserData user) throws IOException, InterruptedException {
         AuthData auth;

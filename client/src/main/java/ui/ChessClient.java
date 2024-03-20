@@ -25,7 +25,7 @@ public class ChessClient {
 
 
     public static void main(String[] args) {
-        facade = new ChessServerFacade();
+        facade = new ChessServerFacade(8080);
 
         setTextColor("Green");
         out.print("\tWelcome to 240 Chess!\n\tType \"help\" to get started.");
