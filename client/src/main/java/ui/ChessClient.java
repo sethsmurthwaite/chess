@@ -4,14 +4,12 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 

@@ -1,7 +1,12 @@
 package clientTests;
 
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
+import ui.ChessServerFacade;
+
+import java.io.IOException;
 
 
 public class ServerFacadeTests {
