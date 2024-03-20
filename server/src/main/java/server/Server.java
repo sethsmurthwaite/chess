@@ -80,7 +80,7 @@ public class Server {
             if (authToken == null) throw new DataAccessException("Missing Auth Token", 400);
             userService.logout(authToken);
             res.status(200);
-            return "";
+            return new JsonObject();
         } catch (DataAccessException e) {
             return handleError(res, e);
         }
