@@ -5,11 +5,18 @@ import com.google.gson.JsonObject;
 import dataAccess.DBAuthDAO;
 import dataAccess.DatabaseManager;
 import dataAccess.DataAccessException;
+import org.eclipse.jetty.websocket.api.Session;
 import service.*;
 import model.*;
 import spark.*;
 import java.util.HashSet;
+import org.eclipse.jetty.websocket.api.annotations.*;
 
+import javax.websocket.OnOpen;
+
+import static org.glassfish.grizzly.http.util.Header.Connection;
+
+@WebSocket
 public class Server {
 
     Gson gson = new Gson();
@@ -21,12 +28,12 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
+        Spark.webSocket("/connect", Server.class);
         Spark.staticFiles.location("web");
         registerEndpoints();
         try {
             dbman.configureDatabase();
-        } catch (DataAccessException e) {
-        }
+        } catch (DataAccessException ignored) {}
         Spark.awaitInitialization();
         return Spark.port();
     }
@@ -47,6 +54,29 @@ public class Server {
         Spark.delete("/db", this::clearDBEndpoint);
         Spark.exception(DataAccessException.class, this::exceptionHandler);
     }
+
+    @OnWebSocketConnect
+    public void onConnect(Session session) throws Exception {
+        System.out.println("WebSocket connected: " + session.getRemoteAddress().getAddress());
+
+        session.getRemote().sendString("You are now connected to the server.");
+    }
+
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws Exception {
+        System.out.println("Received message from client: " + message);
+
+        session.getRemote().sendString("Server received your message: " + message);
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        System.out.println("WebSocket closed: " + reason);
+    }
+
+
+
+
 
     private Object registerUserEndpoint(Request req, Response res) {
         UserData userData = gson.fromJson(req.body(), UserData.class);

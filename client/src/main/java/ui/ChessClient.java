@@ -5,7 +5,6 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -16,11 +15,12 @@ import static ui.EscapeSequences.*;
 public class ChessClient {
     static ChessServerFacade facade;
     private static boolean signedIn = false;
-    private static PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     static UserData user;
     GameData game;
     static GameData[] gameList;
     static AuthData auth;
+    static Boolean isPlayer;
 
 
 
@@ -59,9 +59,23 @@ public class ChessClient {
         out.println("\n\tThanks for playing 240 Chess!");
     }
 
+    public static void gameUI() {
+        setTextColor("Blue");
+        System.out.print("\t\n Hello there this is the game UI");
+        ArrayList<String> validCommands = new ArrayList<>();
+        validCommands.add("help");
+        validCommands.add("redraw");
+        validCommands.add("leave");
+        if (isPlayer) {
 
+            validCommands.add("make move");
+            validCommands.add("help");
+            validCommands.add("help");
+            validCommands.add("help");
 
-
+        }
+        else {}
+    }
 
 
     private static void help() {
@@ -136,6 +150,30 @@ public class ChessClient {
             setTextColor("Light Grey");
             setTextStyle("Italic");
             out.print(" - quit the game");
+
+            setTextColor("Green");
+            setTextStyle("Bold");
+            out.print("\n\t" + "help");
+            setTextColor("Light Grey");
+            setTextStyle("Italic");
+            out.print(" - display help information");
+        }
+    }
+    private static void gameHelp() {
+        if (isPlayer) {
+            setTextColor("Green");
+            setTextStyle("Bold");
+            out.print("\t" + "redraw");
+            setTextColor("Light Grey");
+            setTextStyle("Italic");
+            out.print(" - Redraws the chess board upon the user’s request.");
+
+            setTextColor("Green");
+            setTextStyle("Bold");
+            out.print("\t" + "leave");
+            setTextColor("Light Grey");
+            setTextStyle("Italic");
+            out.print(" - Redraws the chess board upon the user’s request.");
 
             setTextColor("Green");
             setTextStyle("Bold");
@@ -269,7 +307,15 @@ public class ChessClient {
             invalidArguments();
             return;
         }
-        int gameId = Integer.parseInt(arguments[1]);
+//        assert arguments[0] instanceof String;
+        int gameId;
+        try {
+            gameId = Integer.parseInt(arguments[1]);
+        } catch (NumberFormatException e) {
+            System.err.println("\tERROR: Invalid integer format for gameId: " + arguments[1]);
+            return;
+        }
+        System.out.println(gameId);
         String color = arguments.length == 3 ? arguments[2] : "None";
         if (!(Objects.equals(color, "BLACK")
                 || Objects.equals(color, "WHITE")
@@ -297,7 +343,7 @@ public class ChessClient {
             ChessBoard board = game.game().getBoard();
             printBoard("WHITE", board);
             printBoard("BLACK", board);
-//            if (!(color.equals("None"))) printBoard(color, board);
+            gameUI();
         } catch (Error | IOException | InterruptedException e) {
             setTextColor("Red");
             out.print("\tCannot join game.");
