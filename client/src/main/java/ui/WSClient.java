@@ -14,6 +14,7 @@ public class ChessWSClient extends Endpoint {
         while (true) {
             ws.send(scanner.nextLine());
         }
+
     }
 
     public Session session;
