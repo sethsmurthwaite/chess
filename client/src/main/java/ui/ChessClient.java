@@ -217,7 +217,8 @@ public class ChessClient {
         out.print("\n\tSuccessfully logged in!\n\tType \"help\" for available commands");
         signedIn = true;
     }
-    private static void login(String[] arguments) {
+
+    private void login(String[] arguments) {
         if (signedIn) {
             invalidCommand();
             return;
