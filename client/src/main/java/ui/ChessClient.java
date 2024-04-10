@@ -229,7 +229,6 @@ public class ChessClient {
             out.print("Error while getting validMoves");
             throw new RuntimeException(e);
         }
-        else {}
     }
 
 
