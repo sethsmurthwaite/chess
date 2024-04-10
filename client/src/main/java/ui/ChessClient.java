@@ -2,6 +2,11 @@ package ui;
 
 import chess.*;
 import model.*;
+import webSocketMessages.serverMessages.ErrorNotification;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.userCommands.*;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
