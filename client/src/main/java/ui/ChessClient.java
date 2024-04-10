@@ -69,6 +69,11 @@ public class ChessClient {
                 case "list" -> list();
                 case "observe" -> observe(splitResult);
                 case "logout" -> logout();
+                case "clear" -> {
+                    for (int i = 0; i < 100; i++) {
+                        out.print("\n");
+                    }
+                }
                 case "quit" -> {
                     if (signedIn) logout();
                     break;
