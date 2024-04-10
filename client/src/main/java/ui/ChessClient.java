@@ -364,31 +364,7 @@ public class ChessClient {
             out.print(" - display help information");
         }
     }
-    private static void gameHelp() {
-        if (isPlayer) {
-            setTextColor("Green");
-            setTextStyle("Bold");
-            out.print("\t" + "redraw");
-            setTextColor("Light Grey");
-            setTextStyle("Italic");
-            out.print(" - Redraws the chess board upon the user’s request.");
-
-            setTextColor("Green");
-            setTextStyle("Bold");
-            out.print("\t" + "leave");
-            setTextColor("Light Grey");
-            setTextStyle("Italic");
-            out.print(" - Redraws the chess board upon the user’s request.");
-
-            setTextColor("Green");
-            setTextStyle("Bold");
-            out.print("\n\t" + "help");
-            setTextColor("Light Grey");
-            setTextStyle("Italic");
-            out.print(" - display help information");
-        }
-    }
-    private static void register(String[] arguments) {
+    private void register(String[] arguments) {
         if (signedIn) {
             invalidCommand();
             return;
@@ -422,7 +398,6 @@ public class ChessClient {
         out.print("\n\tSuccessfully logged in!\n\tType \"help\" for available commands");
         signedIn = true;
     }
-
     private void login(String[] arguments) {
         if (signedIn) {
             invalidCommand();
@@ -451,7 +426,7 @@ public class ChessClient {
             out.print("\tError while logging in.\n\t" + e.getMessage());
         }
     }
-    private static void logout() {
+    private void logout() {
         if (!signedIn) {
             invalidCommand();
             return;
@@ -473,7 +448,7 @@ public class ChessClient {
         auth = null;
         signedIn = false;
     }
-    private static void create(String[] arguments) {
+    private void create(String[] arguments) {
         if (!signedIn) {
             invalidCommand();
             return;
@@ -504,7 +479,7 @@ public class ChessClient {
             throw new RuntimeException(e);
         }
     }
-    private static void join(String[] arguments) {
+    private void join(String[] arguments) {
         if (!signedIn) {
             invalidCommand();
             return;
@@ -513,7 +488,7 @@ public class ChessClient {
             invalidArguments();
             return;
         }
-//        assert arguments[0] instanceof String;
+
         int gameId;
         try {
             gameId = Integer.parseInt(arguments[1]);
@@ -521,14 +496,20 @@ public class ChessClient {
             System.err.println("\tERROR: Invalid integer format for gameId: " + arguments[1]);
             return;
         }
-        System.out.println(gameId);
+
         String color = arguments.length == 3 ? arguments[2] : "None";
-        if (!(Objects.equals(color, "BLACK")
-                || Objects.equals(color, "WHITE")
-                || Objects.equals(color, "None"))) {
+        ChessGame.TeamColor playerColor = null;
+        if (color.equalsIgnoreCase("WHITE")) playerColor = ChessGame.TeamColor.WHITE;
+        if (color.equalsIgnoreCase("BLACK")) playerColor = ChessGame.TeamColor.BLACK;
+
+        if (playerColor == null) {
             invalidArguments();
+            setTextColor("Red");
+            out.print("\t" + color + " is not a valid color entry.");
             return;
         }
+
+        this.color = playerColor;
 
         try {
             gameList = getList();
@@ -542,20 +523,24 @@ public class ChessClient {
             return;
         }
 
-        GameData game = gameList[gameId - 1];
+       game = gameList[gameId - 1];
 
         try {
-            facade.join(auth, color, game);
+            ChessServerFacade.join(auth, color, game);
+            JoinPlayer joinPlayer = new JoinPlayer(auth.authToken(), playerColor, game.gameID());
+            ntfy(webSocketClient.joinNotification(joinPlayer));
             ChessBoard board = game.game().getBoard();
-            printBoard("WHITE", board);
-            printBoard("BLACK", board);
+//            printBoard("WHITE", board);
+//            printBoard("BLACK", board);
+//            webSocketClient.printMessages(out);
+            isPlayer = true;
             gameUI();
         } catch (Error | IOException | InterruptedException e) {
             setTextColor("Red");
             out.print("\tCannot join game.");
         }
     }
-    private static void observe(String[] arguments) {
+    private void observe(String[] arguments) {
         if (!signedIn) {
             invalidCommand();
             return;
@@ -582,20 +567,19 @@ public class ChessClient {
 
         try {
             String color = "None";
-            facade.join(auth, color, game);
-            ChessBoard board = game.game().getBoard();
-//            if (!(color.equals("None"))) printBoard(color, board);
-
-            printBoard("WHITE", board);
-            printBoard("BLACK", board);
-        } catch (Error | IOException | InterruptedException e) {
+            Observe observe = new Observe(auth.authToken(), game.gameID());
+            ntfy(webSocketClient.observeNotification(observe));
+            this.game = game;
+            isObserver = true;
+        } catch (Error e) {
             setTextColor("Red");
             out.print("\tCannot observe game.");
         }
 
+        gameUI();
 
     }
-    private static void list() {
+    private void list() {
 
         if (!signedIn) {
             invalidCommand();
@@ -603,7 +587,6 @@ public class ChessClient {
         }
 
         GameList resultGameList;
-
         try {
 
             GameData[] sortedList = getList();
@@ -626,10 +609,9 @@ public class ChessClient {
     }
 
 
-
     private static GameData[] getList() throws IOException, InterruptedException {
         GameList resultGameList;
-        resultGameList = facade.list(auth);
+        resultGameList = ChessServerFacade.list(auth);
         HashSet<GameData> games = resultGameList.games();
         ArrayList<GameData> gamesList = new ArrayList<>(games);
         gamesList.sort(Comparator.comparingInt(GameData::gameID));
@@ -637,14 +619,19 @@ public class ChessClient {
         gameList = sortedList;
         return sortedList;
     }
-    private static void printBoard(String color, ChessBoard board) {
 
+    private void printBoard(String color, ChessBoard board) {
+
+        ArrayList<ChessPosition> greenSquares = new ArrayList<>();
+        for (ChessMove move : validMoves) {
+            ChessPosition highLightPosition = move.getEndPosition();
+            greenSquares.add(highLightPosition);
+        }
+
+
+        isPrinting = true;
         boolean isWhite = color.equals("WHITE");
         out.println();
-
-        setTextColor("White");
-        String output = isWhite ? "White player pov" : "Black player pov";
-        out.println(output);
 
         printTop(isWhite);
 
@@ -662,14 +649,18 @@ public class ChessClient {
             for (int col = 0; col < 8; col++) {
                 if (isWhite) col = 7 - col;
 
+                ChessPosition thisSquare = new ChessPosition(row,col + 1);
+
                 if (whiteSquare) {
                     setBackgroundColor("White");
                     whiteSquare = false;
-                }
-                else {
+                    if (greenSquares.contains(thisSquare)) setBackgroundColor("Green");
+                } else {
                     setBackgroundColor("Dark Grey");
                     whiteSquare = true;
+                    if (greenSquares.contains(thisSquare)) setBackgroundColor("Dark Green");
                 }
+
 
                 ChessPiece currentPiece = board.getPiece(new ChessPosition(row, col + 1));
                 if (currentPiece == null) {
@@ -690,6 +681,7 @@ public class ChessClient {
 
                 if (teamColor == ChessGame.TeamColor.WHITE) setTextColor("Blue");
                 else setTextColor("Red");
+                setTextStyle("Bold");
                 out.print(" " + (pieceChar) + "\u2001");
                 if (isWhite) col = 7 - col;
             }
@@ -703,10 +695,13 @@ public class ChessClient {
             if (isWhite) row = 8 - row;
             else row = row - 1;
         }
-
         printTop(isWhite);
+        setTextColor("White");
+        out.print("\tIt is " + game.game().getTeamTurn().toString().toLowerCase() + "'s turn to move.");
+        isPrinting = false;
     }
-    private static void printTop(boolean isWhite) {
+
+    private void printTop(boolean isWhite) {
         char[] alpha = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 
         setBackgroundColor("Blue");
@@ -720,9 +715,12 @@ public class ChessClient {
         setBackgroundColor("None");
         out.print("\n");
     }
-    private static void printPrompt() {
+
+    private void printPrompt() {
         out.print(ERASE_LINE);
         String status = signedIn ? "LOGGED_IN" : "LOGGED_OUT";
+        if (isPlayer) status = "GAME";
+        if (isObserver) status = "OBSERVING";
         setTextColor("White");
         out.print(RESET_TEXT_ITALIC);
         setTextStyle("Bold");
@@ -740,13 +738,15 @@ public class ChessClient {
 //        }
         out.print(output);
     }
-    private static void invalidCommand() {
+
+    private void invalidCommand() {
         setTextColor("Red");
         out.print("\tInvalid Command!");
         setTextColor("Yellow");
         out.print("\n\tType \"help\" for available commands");
     }
-    private static void invalidArguments() {
+
+    private void invalidArguments() {
         setTextColor("Red");
         out.print("\tInvalid arguments!");
         setTextColor("Yellow");
@@ -754,9 +754,7 @@ public class ChessClient {
     }
 
 
-
-
-    private static void setBackgroundColor(String color) {
+    private void setBackgroundColor(String color) {
         String BG = switch (color) {
             case "Black" -> SET_BG_COLOR_BLACK;
             case "White" -> SET_BG_COLOR_WHITE;
@@ -773,7 +771,8 @@ public class ChessClient {
         };
         out.print(BG);
     }
-    private static void setTextColor(String color) {
+
+    private void setTextColor(String color) {
         String text = switch (color) {
             case "Black" -> SET_TEXT_COLOR_BLACK;
             case "White" -> SET_TEXT_COLOR_WHITE;
@@ -788,7 +787,8 @@ public class ChessClient {
         };
         out.print(text);
     }
-    private static void setTextStyle(String style) {
+
+    private void setTextStyle(String style) {
         String s = switch (style) {
             case "Bold" -> SET_TEXT_BOLD;
             case "Italic" -> SET_TEXT_ITALIC;
@@ -801,5 +801,41 @@ public class ChessClient {
         out.print(RESET_TEXT_BOLD_FAINT);
         out.print(RESET_TEXT_UNDERLINE);
         out.print(s);
+    }
+
+    public void ntfy(String message) {
+        try {
+            webSocketClient.send(message);
+        } catch (Exception ignored) {
+            System.out.println(ignored.getMessage());
+            System.out.println("Error in ntfy() func");
+        }
+    }
+
+    public void printNotification(Notification notice) {
+        setTextColor("White");
+        out.print("\nNotification:");
+        setTextColor("Green");
+        out.print("\n" + notice.getMessage());
+        if (isPlayer && notice.getMessage().contains("resign")) {
+            out.print(" You win!");
+        }
+        printPrompt();
+    }
+    public void printLoadGame(LoadGame load) {
+        setTextColor("White");
+        game = load.getGame();
+        gameOver = load.getGameOver();
+        redraw();
+        printPrompt();
+    }
+    public void printError(ErrorNotification e) {
+        setTextColor("Red");
+        out.print("\nError:\n\t");
+        out.print(e.getMessage());
+        printPrompt();
+    }
+    public void sendMessage(String message) {
+        out.print(message);
     }
 }
