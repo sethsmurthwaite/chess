@@ -60,7 +60,7 @@ public class ChessClient {
             printPrompt();
             result = scanner.nextLine();
             String[] splitResult = result.split("\\s+");
-            switch(splitResult[0]) {
+            switch (splitResult[0]) {
                 case "help" -> help();
                 case "register" -> register(splitResult);
                 case "login" -> login(splitResult);
