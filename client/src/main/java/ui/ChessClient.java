@@ -23,8 +23,14 @@ public class ChessClient {
     GameData game;
     static GameData[] gameList;
     static AuthData auth;
-    static Boolean isPlayer;
-
+    static Boolean isPlayer = false;
+    boolean isObserver = false;
+    static WSClient webSocketClient;
+    boolean isPrinting = false;
+    ChessGame.TeamColor color;
+    boolean gameOver = false;
+    HashSet<ChessMove> validMoves = new HashSet<>();
+    ArrayList<String> messages = new ArrayList<>();
 
 
     public static void main(String[] args) {
