@@ -41,6 +41,7 @@ public class WSClient extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
         this.session = session;
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
             public void onMessage(String message) {
 //                chessClient.sendMessage(message);
                 int i = 0;
