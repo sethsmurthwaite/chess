@@ -18,6 +18,7 @@ public class ChessClient {
     static ChessServerFacade facade;
     private static boolean signedIn = false;
     private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    static Scanner scanner = new Scanner(System.in);
     static UserData user;
     GameData game;
     static GameData[] gameList;
