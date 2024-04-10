@@ -164,6 +164,71 @@ public class ChessClient {
                 out.print(" - highlights legal moves.");
 
         }
+
+        setTextColor("Green");
+        setTextStyle("Bold");
+        out.print("\n\t" + "help");
+        setTextColor("Light Grey");
+        setTextStyle("Italic");
+        out.print(" - display available commands.");
+
+    }
+    private void leave() {
+        int id = game.gameID();
+        Leave leave = new Leave(auth.authToken(), id);
+        ntfy(webSocketClient.leaveNotification(leave));
+        setTextColor("Green");
+        out.print("\tYou have left the game.");
+        isPlayer = false;
+        isObserver = false;
+    }
+    private void resign() {
+        setTextColor("Yellow");
+        out.print("\tAre you sure you want to resign? (y/n)  >>>  ");
+        String response = scanner.nextLine();
+        switch (response.toLowerCase()) {
+            case "y" -> {
+                gameOver = true;
+                Resign resign = new Resign(auth.authToken(), game.gameID());
+                ntfy(webSocketClient.resignNotification(resign));
+                setTextColor("White");
+                out.print("\tYou have resigned. You lose.");
+            }
+            case "n" -> { out.print("\tYou have not resigned."); }
+            default -> { setTextColor("Red");out.print("\t" + response + " is not a valid input"); }
+        }
+    }
+    private void makeMove(String move) {
+        ChessMove chessMove = moveFromString(move);
+        MakeMove makeMove = new MakeMove(auth.authToken(), chessMove, game.gameID());
+        ntfy(webSocketClient.moveNotification(makeMove));
+    }
+    private void redraw() {
+        if (color == null) { printBoard("WHITE", game.game().getBoard()); return; }
+        if (color.toString().equals("WHITE")) printBoard("WHITE", game.game().getBoard());
+        if (color.toString().equals("BLACK")) printBoard("BLACK", game.game().getBoard());
+    }
+
+    private void highlight(String move) {
+        if (move.length() != 2 || (!Character.isLetter(move.charAt(0)) || !Character.isDigit(move.charAt(1)))) {
+            setTextColor("Red");
+            out.print("\tInvalid Move");
+            return;
+        }
+        ChessPosition chessPosition = getRowAndColValues(move);
+
+        try {
+            validMoves = (HashSet<ChessMove>) ChessServerFacade.getValidMoves(auth.authToken(), chessPosition, game.gameID());
+            setTextColor("Green");
+            out.print("SUCCESS!");
+            out.print(validMoves.toString());
+            printBoard(color.toString(), game.game().getBoard());
+            validMoves.clear();
+        } catch (IOException | InterruptedException e) {
+            setTextColor("Red");
+            out.print("Error while getting validMoves");
+            throw new RuntimeException(e);
+        }
         else {}
     }
 
