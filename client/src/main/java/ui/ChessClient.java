@@ -245,7 +245,46 @@ public class ChessClient {
         return new ChessPosition(row, col);
     }
 
-    private static void help() {
+    private ChessMove moveFromString(String move) {
+        if (
+                move.length() != 4 ||
+                        (
+                                !Character.isLetter(move.charAt(0)) ||
+                                        !Character.isDigit(move.charAt(1)) ||
+                                        !Character.isLetter(move.charAt(2)) ||
+                                        !Character.isDigit(move.charAt(3)
+                                        )
+                        )) {
+            setTextColor("Red");
+            out.print("\tInvalid Move");
+            return null;
+        }
+        char[] alpha = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+        char colChar = move.charAt(0);
+        int col = -1;
+        for (int i = 0; i < alpha.length; i++) {
+            if (alpha[i] == colChar) {
+                col = i + 1;
+                break;
+            }
+        }
+        int row = Character.getNumericValue(move.charAt(1));
+        ChessPosition currentPosition = new ChessPosition(row, col);
+        colChar = move.charAt(2);
+        col = -1;
+        for (int i = 0; i < alpha.length; i++) {
+            if (alpha[i] == colChar) {
+                col = i + 1;
+                break;
+            }
+        }
+        row = Character.getNumericValue(move.charAt(3));
+        ChessPosition targetPosition = new ChessPosition(row, col);
+
+        return new ChessMove(currentPosition, targetPosition);
+    }
+
+    private void help() {
         if (!signedIn) {
             setTextColor("Green");
             setTextStyle("Bold");
