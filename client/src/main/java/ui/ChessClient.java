@@ -41,6 +41,18 @@ public class ChessClient {
     public void run(String[] args) {
         facade = new ChessServerFacade(8080);
 
+        try {
+            String clientID = this.toString();
+            webSocketClient = new WSClient(this, clientID);
+        } catch (Exception ignore) {
+            System.out.println("Somethign went wrong trying to init wsClient");
+            System.out.println(ignore.getMessage());
+        }
+
+        for (int i = 0; i < 100; i++) {
+            out.print("\n");
+        }
+
         setTextColor("Green");
         out.print("\tWelcome to 240 Chess!\n\tType \"help\" to get started.");
         Scanner scanner = new Scanner(System.in);
