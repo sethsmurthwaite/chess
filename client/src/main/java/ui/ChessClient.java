@@ -231,6 +231,19 @@ public class ChessClient {
         }
     }
 
+    private static ChessPosition getRowAndColValues(String move) {
+        char[] alpha = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+        char colChar = move.charAt(0);
+        int col = -1;
+        for (int i = 0; i < alpha.length; i++) {
+            if (alpha[i] == colChar) {
+                col = i + 1;
+                break;
+            }
+        }
+        int row = Character.getNumericValue(move.charAt(1));
+        return new ChessPosition(row, col);
+    }
 
     private static void help() {
         if (!signedIn) {
