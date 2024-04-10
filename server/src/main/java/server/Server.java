@@ -1,35 +1,39 @@
 package server;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataAccess.DBAuthDAO;
 import dataAccess.DatabaseManager;
 import dataAccess.DataAccessException;
-import org.eclipse.jetty.websocket.api.Session;
 import service.*;
 import model.*;
 import spark.*;
+
+import java.util.Collection;
 import java.util.HashSet;
-import org.eclipse.jetty.websocket.api.annotations.*;
 
-import javax.websocket.OnOpen;
 
-import static org.glassfish.grizzly.http.util.Header.Connection;
 
-@WebSocket
 public class Server {
 
     Gson gson = new Gson();
 //    MemoryAuthDAO authDAO = new MemoryAuthDAO();
     DatabaseManager dbman = new DatabaseManager();
     DBAuthDAO authDAO = new DBAuthDAO(dbman);
+    int port;
     UserService userService = new UserService(authDAO, dbman);
     GameService gameService = new GameService(authDAO, dbman);
+    WSServer wsServer;
 
     public int run(int desiredPort) {
+        port = desiredPort;
         Spark.port(desiredPort);
-        Spark.webSocket("/connect", Server.class);
         Spark.staticFiles.location("web");
+        wsServer = new WSServer(dbman, authDAO, port, userService, gameService);
+        Spark.webSocket("/connect", wsServer);
         registerEndpoints();
         try {
             dbman.configureDatabase();
@@ -51,32 +55,10 @@ public class Server {
         Spark.get("/game", this::listGamesEndpoint);
         Spark.post("/game", this::createGameEndpoint);
         Spark.put("/game", this::joinGameEndpoint);
+        Spark.get("/move",this::highlightEndpoint);
         Spark.delete("/db", this::clearDBEndpoint);
         Spark.exception(DataAccessException.class, this::exceptionHandler);
     }
-
-    @OnWebSocketConnect
-    public void onConnect(Session session) throws Exception {
-        System.out.println("WebSocket connected: " + session.getRemoteAddress().getAddress());
-
-        session.getRemote().sendString("You are now connected to the server.");
-    }
-
-    @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws Exception {
-        System.out.println("Received message from client: " + message);
-
-        session.getRemote().sendString("Server received your message: " + message);
-    }
-
-    @OnWebSocketClose
-    public void onClose(Session session, int statusCode, String reason) {
-        System.out.println("WebSocket closed: " + reason);
-    }
-
-
-
-
 
     private Object registerUserEndpoint(Request req, Response res) {
         UserData userData = gson.fromJson(req.body(), UserData.class);
@@ -173,7 +155,32 @@ public class Server {
         gameService.clearGames();
         userService.clearUsers();
         authDAO.clearAuth();
+        if (wsServer != null) wsServer.clearActiveGames();
         res.status(200);
+        return new JsonObject();
+    }
+
+    private Object highlightEndpoint(Request req, Response res) throws DataAccessException {
+        HashSet<ChessMove> validMoves;
+        GameMoveCollection validMovesCollection = new GameMoveCollection();
+//        HighlightRequest highlightRequest = gson.fromJson(req.body(), HighlightRequest.class);
+        ChessPosition position = gson.fromJson(req.headers("Position"), ChessPosition.class);
+        Integer gameID = gson.fromJson(req.headers("gameID"), Integer.class);
+        String authToken = req.headers("Authorization");
+        if (authToken == null) return "";
+        HashSet<GameData> gameList = gameService.listGames(authToken);
+        GameData game = null;
+        for (GameData gameData : gameList) {
+            if (gameData.gameID() != gameID) continue;
+            game = gameData;
+        }
+        if (game != null) {
+            validMoves = (HashSet<ChessMove>) game.game().validMoves(position);
+            for (ChessMove m : validMoves) {
+                validMovesCollection.addToCollection(m);
+            }
+            return gson.toJson(validMovesCollection);
+        }
         return new JsonObject();
     }
 
