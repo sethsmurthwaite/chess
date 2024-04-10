@@ -156,10 +156,12 @@ public class ChessClient {
                 setTextStyle("Italic");
                 out.print(" - resign the game.");
 
-            validCommands.add("make move");
-            validCommands.add("help");
-            validCommands.add("help");
-            validCommands.add("help");
+                setTextColor("Green");
+                setTextStyle("Bold");
+                out.print("\n\t" + "highlight");
+                setTextColor("Light Grey");
+                setTextStyle("Italic");
+                out.print(" - highlights legal moves.");
 
         }
         else {}
