@@ -1,5 +1,7 @@
 package webSocketMessages.serverMessages;
 
+import webSocketMessages.userCommands.UserGameCommand;
+
 import java.util.Objects;
 
 /**
