@@ -313,8 +313,7 @@ public class ChessClient {
             setTextColor("Light Grey");
             setTextStyle("Italic");
             out.print(" - display help information");
-        }
-        else {
+        } else {
             setTextColor("Green");
             setTextStyle("Bold");
             out.print("\t" + "create <NAME>");
