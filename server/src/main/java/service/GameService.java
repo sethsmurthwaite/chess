@@ -67,17 +67,4 @@ public class GameService {
             throw new RuntimeException(e);
         }
     }
-
-//    public void leaveGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
-//        GameData game = gameDAO.getGame(gameID);
-//        String blackUsername = game.blackUsername();
-////        String whiteUsername = game.whiteUsername();
-//        if (username.equals(blackUsername)) {
-//            game.setPlayer(null, ChessGame.TeamColor.BLACK);
-//        }
-//        else {
-//            game.setPlayer(null, ChessGame.TeamColor.WHITE);
-//        }
-//        gameDAO.updateGame(game);
-//    }
 }
