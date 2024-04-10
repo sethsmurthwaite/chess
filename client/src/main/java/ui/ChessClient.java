@@ -55,7 +55,6 @@ public class ChessClient {
 
         setTextColor("Green");
         out.print("\tWelcome to 240 Chess!\n\tType \"help\" to get started.");
-        Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
