@@ -89,14 +89,72 @@ public class ChessClient {
         out.println("\n\tThanks for playing 240 Chess!");
     }
 
-    public static void gameUI() {
-        setTextColor("Blue");
-        System.out.print("\t\n Hello there this is the game UI");
-        ArrayList<String> validCommands = new ArrayList<>();
-        validCommands.add("help");
-        validCommands.add("redraw");
-        validCommands.add("leave");
-        if (isPlayer) {
+    public void gameUI() {
+        setTextColor("Green");
+        out.print("\tType 'help' for available game commands.");
+        String result = "";
+        while (!result.equals("leave")) {
+            printPrompt();
+            result = scanner.nextLine();
+            String[] splitResult = result.split("\\s+");
+            switch (splitResult[0]) {
+                case "help" -> gameHelp();
+                case "leave" -> leave();
+                case "resign" -> {
+                    if (gameOver) invalidCommand();
+                    resign();
+                }
+                case "redraw" -> redraw();
+                case "make" -> {
+                    if (gameOver) { invalidCommand(); break; }
+                    if (!splitResult[1].equals("move")) { invalidCommand(); break; }
+                    makeMove(splitResult[2]);
+                }
+                case "highlight" -> highlight(splitResult[1]);
+                case "clear" -> {
+                    for (int i = 0; i < 100; i++) {
+                        out.print("\n");
+                    }
+                }
+                default -> invalidCommand();
+            }
+        }
+        isPlayer = false;
+    }
+
+    private void gameHelp() {
+
+        if (game != null) {
+            setTextColor("Green");
+            setTextStyle("Bold");
+            out.print("\t" + "redraw");
+            setTextColor("Light Grey");
+            setTextStyle("Italic");
+            out.print(" - Redraws the chess board upon request.");
+        }
+
+        setTextColor("Green");
+        setTextStyle("Bold");
+        out.print("\n\t" + "leave");
+        setTextColor("Light Grey");
+        setTextStyle("Italic");
+        out.print(" - leave the game.");
+
+        if (isPlayer && !gameOver) {
+
+                setTextColor("Green");
+                setTextStyle("Bold");
+                out.print("\n\t" + "make move");
+                setTextColor("Light Grey");
+                setTextStyle("Italic");
+                out.print(" - Make a move. (ie a2a3)");
+
+                setTextColor("Green");
+                setTextStyle("Bold");
+                out.print("\n\t" + "resign");
+                setTextColor("Light Grey");
+                setTextStyle("Italic");
+                out.print(" - resign the game.");
 
             validCommands.add("make move");
             validCommands.add("help");
