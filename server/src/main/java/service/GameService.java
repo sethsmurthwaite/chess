@@ -37,14 +37,47 @@ public class GameService {
         if (game == null) throw new DataAccessException("Game does not Exist", 400);
         if (color == null) throw new DataAccessException("No color specified", 200);
         switch (color) {
-            case WHITE:
-                if (null != game.whiteUsername()) throw new DataAccessException("Color already taken.", 403);
+            case WHITE: {
+                if (null != game.whiteUsername() && username.equals(game.whiteUsername())) {
+                    break;
+                }
+                else if (null != game.whiteUsername()){
+                    throw new DataAccessException("Color already taken.", 403);
+                }
                 gameDAO.updateGame(game.setPlayer(username, ChessGame.TeamColor.WHITE));
                 break;
-            case BLACK:
-                if (null != game.blackUsername()) throw new DataAccessException("Color already taken.", 403);
+            }
+            case BLACK: {
+                if (null != game.blackUsername() && username.equals(game.blackUsername())) {
+                    break;
+                }
+                else if (null != game.blackUsername()) throw new DataAccessException("Color already taken.", 403);
                 gameDAO.updateGame(game.setPlayer(username, ChessGame.TeamColor.BLACK));
                 break;
+            }
         }
     }
+
+    public void makeMove(GameData newGame) {
+        // Assume the move is valid bc of check in wsServer sendMakeMoveNotification()
+        // Assume the auth is valid bc of try/catch in wsServer sendMakeMoveNotification()
+        try {
+            gameDAO.updateGame(newGame);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+//    public void leaveGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+//        GameData game = gameDAO.getGame(gameID);
+//        String blackUsername = game.blackUsername();
+////        String whiteUsername = game.whiteUsername();
+//        if (username.equals(blackUsername)) {
+//            game.setPlayer(null, ChessGame.TeamColor.BLACK);
+//        }
+//        else {
+//            game.setPlayer(null, ChessGame.TeamColor.WHITE);
+//        }
+//        gameDAO.updateGame(game);
+//    }
 }
