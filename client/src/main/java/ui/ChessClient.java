@@ -34,6 +34,11 @@ public class ChessClient {
 
 
     public static void main(String[] args) {
+        ChessClient chessClient = new ChessClient();
+        chessClient.run(null);
+    }
+
+    public void run(String[] args) {
         facade = new ChessServerFacade(8080);
 
         setTextColor("Green");
