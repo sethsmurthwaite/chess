@@ -4,7 +4,6 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
 import model.*;
 
 import java.io.IOException;
@@ -12,18 +11,16 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
 public class ChessServerFacade {
     static Gson gson = new Gson();
-    private static String URL;
+    private static String url;
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public ChessServerFacade(int port) {
-        URL = "http://localhost:" + port;
+        url = "http://localhost:" + port;
     }
 
     public static AuthData register(UserData user) throws IOException, InterruptedException {
@@ -31,7 +28,7 @@ public class ChessServerFacade {
 
         String requestBody = gson.toJson(user);
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/user"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/user"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -51,7 +48,7 @@ public class ChessServerFacade {
 
         AuthData auth;
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/session"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/session"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -68,7 +65,7 @@ public class ChessServerFacade {
         return auth;
     }
     public static void logout(AuthData auth) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/session"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/session"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", auth.authToken())
                 .DELETE().build();
@@ -81,7 +78,7 @@ public class ChessServerFacade {
         obj.addProperty("gameID", game.gameID());
         String requestBody = obj.toString();
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/game"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/game"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", auth.authToken())
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody)).build();
@@ -90,7 +87,7 @@ public class ChessServerFacade {
     }
     public static void create(String gameName, AuthData auth) throws IOException, InterruptedException {
         String requestBody = new Gson().toJson(Map.of("gameName", gameName));
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/game"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/game"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", auth.authToken())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
@@ -101,7 +98,7 @@ public class ChessServerFacade {
     }
     public static GameList list(AuthData auth) throws IOException, InterruptedException {
         GameList gameList = null;
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/game"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/game"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", auth.authToken())
                 .GET().build();
@@ -116,12 +113,7 @@ public class ChessServerFacade {
     public static HashSet<ChessMove> getValidMoves(String authToken, ChessPosition pos, Integer gameID) throws IOException, InterruptedException {
         GameMoveCollection validMoves = null;
 
-//        JsonObject obj = new JsonObject();
-//        obj.addProperty("position", gson.toJson(pos));
-//        obj.addProperty("gameID", gameID.toString());
-//        String requestBody = obj.toString();
-
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(URL + "/move"))
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/move"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", authToken)
                 .header("Position", gson.toJson(pos))

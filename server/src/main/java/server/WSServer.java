@@ -28,19 +28,14 @@ import java.util.*;
 
 @WebSocket
 public class WSServer {
-
     Gson gson = new Gson();
-
     private ArrayList<Session> sessions = new ArrayList<>();
     private HashMap<Integer, GameSession> activeGames = new HashMap<>();
-    private ArrayList<MessageObj> messagesArray = new ArrayList<>();
-    String URL;
     DatabaseManager dbman;
     AuthDAO authDAO;
     int port;
     UserService userService;
     GameService gameService;
-
     public WSServer(DatabaseManager dbman, AuthDAO authDAO, int port, UserService userService, GameService gameService) {
         this.dbman = dbman;
         this.authDAO = authDAO;
@@ -48,12 +43,10 @@ public class WSServer {
         this.userService = userService;
         this.gameService = gameService;
     }
-
     @OnWebSocketConnect
     public void onConnect(Session session) {
         sessions.add(session);
     }
-
     @OnWebSocketError
     public void onError(Session session, Throwable throwable) {
         System.out.println("Error occurred: " + throwable.getMessage());
@@ -63,7 +56,6 @@ public class WSServer {
             e.printStackTrace();
         }
     }
-
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         sessions.remove(session);
@@ -103,7 +95,6 @@ public class WSServer {
             activeGames.put(gameID, gameSession);
         }
     }
-
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
@@ -177,9 +168,6 @@ public class WSServer {
     }
     private void addObserverToGame(GameSession gameSession, String observerUsername, Session observerSession) {
         gameSession.addObservers(observerUsername, observerSession);
-    }
-    private GameSession removeFromActiveGame(int gameID) {
-        return activeGames.remove(gameID);
     }
     private String joinLogic(Session session, JoinPlayer joinPlayer) throws DataAccessException, IOException {
 

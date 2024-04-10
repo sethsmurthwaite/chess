@@ -33,18 +33,11 @@ public class GameSession {
     public void setGameOver(boolean b) {
         gameOver = b;
     }
-    public void setGameData(GameData game) {
-        this.gameData = game;
-    }
     public void addObservers(String username, Session session) {
         observers.put(username, session);
     }
     public void removeObserver(String username) {
         observers.remove(username);
-    }
-    public Session getObserverSession(String username) {
-        if (observers.isEmpty()) return null;
-        else return observers.get(username);
     }
     public Session[] getObserverSessions() {
         Collection<Session> sessions = observers.values();
@@ -67,8 +60,5 @@ public class GameSession {
     }
     public GameData getGameData() {
         return gameData;
-    }
-    public boolean isGameOver() {
-        return gameOver;
     }
 }

@@ -79,6 +79,4 @@ public class WSClient extends Endpoint {
     public String resignNotification(Resign resign) { return gson.toJson(resign); }
     public String observeNotification(Observe observe) { return gson.toJson(observe); }
     public String moveNotification(MakeMove move) { return gson.toJson(move); }
-    public Notification notification(String json) { return gson.fromJson(json, Notification.class); }
-    public LoadGame loadGameNotification(String json) { return gson.fromJson(json, LoadGame.class); }
 }
